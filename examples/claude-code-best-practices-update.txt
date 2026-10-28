@@ -1,0 +1,22 @@
+# Second batch of the "Claude Code best practices" sample notebook, added after its first merge so
+# the re-merge shows the diff report and the (new) badges:
+#   hmd notebook add claude-code-best-practices --input examples/claude-code-best-practices-update.txt
+#   hmd resume claude-code-best-practices --formats summary,digest,hybrid,outline,quotes,diff
+
+# 2026-08-16 Use Claude Better Than 99% of People (Beginner to Pro) (Futurepedia)
+https://www.youtube.com/watch?v=5aUgDDWd4-k
+
+# 2026-09-02 How the Claude Code team uses Claude Code (Claude)
+https://www.youtube.com/watch?v=S-sYlFiGFv8
+
+# 2026-09-17 Claude's Creator Just Told Us How to Actually Use Claude in 2026 (AI Edge)
+https://www.youtube.com/watch?v=tRmLQZJYQdA
+
+# 2026-10-10 How the Top 1% Use Claude Code Differently (Simon Scrapes)
+https://www.youtube.com/watch?v=J9NQTYUP6k0
+
+# 2026-10-22 5 Claude Myths Even Pros Fall For (Simon Scrapes)
+https://www.youtube.com/watch?v=v9YVQoeSp-I
+
+# Best practices for Claude Code (official documentation, current)
+https://code.claude.com/docs/en/best-practices

@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claude Code fundamentals — Outline</title>
+<!-- hmd:theme:start -->
+<style id="hmd-theme">
+/* Hive Mind Digest report theme "paper" (v1).
+   This block is the whole look of the page: replace everything between the hmd:theme markers to
+   restyle it. The markup carries no inline style; it uses only these hooks:
+   body.report-{summary,digest,hybrid,outline,quotes,diff}, .skip-link, nav.sidebar (#contents, li.level-1/2),
+   main#content, .sample-banner, .report-header (h1 .report-kind), nav.report-links (span[aria-current], .contents-link),
+   h2-h4 with ids, ul.points, .badge + .badge-{confirmed,sources,partly,disputed,new}, .cites, a.cite,
+   details.quotes, blockquote, q.quote, cite.source, p.contradiction, .legend, .note, .sources-line,
+   .table-wrap, table, th.num/td.num. */
+:root {
+  color-scheme: light dark;
+  --paper: #fbfaf6; --ink: #1d1c19; --ink-2: #3f3c35; --muted: #5f5b52;
+  --rule: #e4e0d5; --rule-strong: #cbc5b6; --panel: #f3f0e7; --row-hover: #f7f5ef;
+  --link: #1f4b99; --link-hover: #12326b; --accent: #a4500a; --accent-soft: #f5e4cf;
+  --ok: #1d6436; --ok-bg: #e2f0e4; --warn: #744800; --warn-bg: #f8ecc8;
+  --bad: #9e2428; --bad-bg: #f8e4e1; --new: #1f4b99; --new-bg: #e3eaf6;
+  --serif: Charter, "Bitstream Charter", "Sitka Text", Cambria, "Iowan Old Style", Georgia, serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --measure: 42rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #15140f; --ink: #ebe7dc; --ink-2: #d3cdbf; --muted: #a39e91;
+    --rule: #2b2923; --rule-strong: #403c33; --panel: #1d1c16; --row-hover: #1a1914;
+    --link: #a3bdf2; --link-hover: #cbdafa; --accent: #eaa45e; --accent-soft: #3d2c17;
+    --ok: #86d29b; --ok-bg: #16291d; --warn: #e9c374; --warn-bg: #2e2512;
+    --bad: #f39a94; --bad-bg: #351a1a; --new: #a3bdf2; --new-bg: #19243a;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: 1.5rem; scrollbar-color: var(--rule-strong) var(--paper); }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+body { margin: 0; background: var(--paper); color: var(--ink);
+  font: 1.0625rem/1.65 var(--serif); font-kerning: normal;
+  display: grid; grid-template-columns: minmax(15rem, 18rem) minmax(0, 1fr); }
+::selection { background: var(--accent-soft); color: var(--ink); }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 0.18em;
+  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent); }
+a:hover { color: var(--link-hover); text-decoration-color: currentColor; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+.skip-link { position: absolute; left: 1rem; top: -4rem; z-index: 2; padding: 0.6rem 0.9rem;
+  background: var(--ink); color: var(--paper); font: 600 0.875rem/1 var(--sans); border-radius: 4px; }
+.skip-link:focus { top: 1rem; }
+.skip-link:hover { color: var(--paper); }
+
+/* contents */
+nav.sidebar { grid-column: 1; grid-row: 1; position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  padding: 2.5rem 1.25rem 3rem 1.5rem; border-right: 1px solid var(--rule);
+  font: 0.8125rem/1.4 var(--sans); scrollbar-width: thin; }
+nav.sidebar strong { display: block; margin-bottom: 0.9rem; color: var(--muted);
+  font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+nav.sidebar ol { list-style: none; margin: 0; padding: 0; }
+nav.sidebar a { display: block; padding: 0.22rem 0; text-decoration: none; color: var(--ink-2); }
+nav.sidebar a:hover { color: var(--link); }
+nav.sidebar li.level-1 { margin-top: 0.55rem; }
+nav.sidebar li.level-1:first-child { margin-top: 0; }
+nav.sidebar li.level-1 > a { color: var(--ink); font-weight: 600; }
+nav.sidebar li.level-2 { margin-left: 0.15rem; padding-left: 0.7rem; border-left: 1px solid var(--rule); }
+nav.sidebar li.level-2 > a { color: var(--muted); }
+nav.sidebar li.level-2 > a:hover { color: var(--link); }
+
+/* page */
+main { grid-column: 2; min-width: 0; padding: 1rem clamp(1.5rem, 4vw, 3rem) 6rem clamp(2rem, 7vw, 7rem); }
+main > * { max-width: var(--measure); }
+main > .table-wrap { max-width: 56rem; }
+.sample-banner { margin: 0 0 2.25rem; padding: 0.6rem 0.85rem; background: var(--panel);
+  border: 1px solid var(--rule); border-radius: 6px; color: var(--muted); font: 0.8125rem/1.5 var(--sans); }
+.report-header h1 { margin: 0 0 0.6rem; font-weight: 600; letter-spacing: -0.015em; line-height: 1.12;
+  font-size: clamp(1.625rem, 1.2rem + 1.4vw, 2.25rem); text-wrap: balance; }
+.report-kind { display: inline-block; color: var(--muted); font-weight: 400; }
+.report-header { margin-bottom: 2.75rem; }
+.report-header p { margin: 0; color: var(--muted); font: 0.875rem/1.5 var(--sans); font-variant-numeric: tabular-nums; }
+nav.report-links { display: flex; flex-wrap: wrap; column-gap: 0.25rem; margin: 0 0 2.5rem;
+  border-bottom: 1px solid var(--rule); font: 0.875rem/1 var(--sans); }
+nav.report-links a, nav.report-links span { display: inline-flex; align-items: center; min-height: 2.75rem;
+  padding: 0 0.7rem; margin-bottom: -1px; border-bottom: 2px solid transparent;
+  color: var(--muted); text-decoration: none; }
+nav.report-links a:first-child, nav.report-links span:first-child { padding-left: 0; }
+nav.report-links a:hover { color: var(--ink); border-bottom-color: var(--rule-strong); }
+nav.report-links span[aria-current] { color: var(--ink); font-weight: 600; border-bottom-color: var(--accent); }
+nav.report-links .contents-link { display: none; margin-left: auto; }
+
+h2, h3, h4 { line-height: 1.25; text-wrap: balance; font-weight: 600; }
+h2 { margin: 3.5rem 0 1rem; padding-top: 1.5rem; border-top: 1px solid var(--rule);
+  font-size: 1.625rem; letter-spacing: -0.01em; }
+.report-header + h2 { margin-top: 0; padding-top: 0; border-top: 0; }
+h3 { margin: 2.25rem 0 0.6rem; font-size: 1.1875rem; }
+h4 { margin: 1.75rem 0 0.4rem; color: var(--muted); font: 600 0.75rem/1.3 var(--sans);
+  letter-spacing: 0.06em; text-transform: uppercase; }
+.report-digest h3:not([id]) { color: var(--muted); font: 600 0.75rem/1.3 var(--sans);
+  letter-spacing: 0.06em; text-transform: uppercase; margin-top: 1.75rem; }
+:is(h2, h3):target { text-decoration: underline 2px var(--accent); text-underline-offset: 0.3em; }
+p { margin: 0 0 1rem; }
+ul { margin: 0 0 1.25rem; padding-left: 1.25rem; }
+li { margin: 0.35rem 0; }
+li::marker { color: var(--muted); }
+
+/* points */
+ul.points { list-style: none; padding: 0; }
+ul.points > li { margin: 0; padding: 0.85rem 0; border-bottom: 1px solid var(--rule); }
+ul.points > li:first-child { padding-top: 0.25rem; }
+ul.points > li:last-child { border-bottom: 0; }
+.badge { display: inline-block; padding: 0 0.5rem; border-radius: 999px; white-space: nowrap;
+  font: 600 0.6875rem/1.65 var(--sans); letter-spacing: 0.02em; vertical-align: 0.12em;
+  font-variant-numeric: tabular-nums; }
+.badge-confirmed { color: var(--ok); background: var(--ok-bg); }
+.badge-sources { color: var(--muted); background: var(--panel); box-shadow: inset 0 0 0 1px var(--rule); }
+.badge-partly { color: var(--warn); background: var(--warn-bg); }
+.badge-disputed { color: var(--bad); background: var(--bad-bg); }
+.badge-new { color: var(--new); background: var(--new-bg); }
+.cites { display: block; margin-top: 0.3rem; color: var(--muted); font: 0.8125rem/1.5 var(--sans); }
+.cites a.cite { font-variant-numeric: tabular-nums; }
+
+/* quotes */
+details.quotes { margin-top: 0.4rem; }
+details.quotes summary { width: max-content; cursor: pointer; color: var(--muted); font: 0.8125rem/1.8 var(--sans); }
+details.quotes summary:hover { color: var(--ink); }
+blockquote { margin: 0.7rem 0 0.2rem; padding: 0.05rem 0 0.05rem 1rem; border-left: 1px solid var(--rule-strong); }
+q.quote { color: var(--ink-2); font-style: italic; }
+cite.source { display: block; margin-top: 0.2rem; color: var(--muted); font: normal 0.8125rem/1.5 var(--sans); }
+.report-quotes main ul { list-style: none; padding: 0; }
+.report-quotes main ul > li { margin: 0; padding: 1.1rem 0 1.25rem; border-bottom: 1px solid var(--rule); }
+.report-quotes main ul > li:last-child { border-bottom: 0; }
+.report-quotes main li > strong { display: block; font-weight: 600; line-height: 1.5; }
+.report-quotes blockquote { margin-top: 0.85rem; }
+.report-quotes q.quote { font-size: 1.0625rem; }
+
+/* notes, contradictions */
+.legend, .note, .sources-line { color: var(--muted); font: 0.8125rem/1.55 var(--sans); }
+.legend { margin: 1.5rem 0 0; padding: 0.75rem 1rem; background: var(--panel); border-radius: 6px; }
+p.contradiction { margin: 1.25rem 0; padding: 0.9rem 1.1rem; background: var(--bad-bg); border-radius: 6px;
+  color: var(--ink); font-size: 1rem; }
+p.contradiction strong { color: var(--bad); font: 600 0.875rem/1.5 var(--sans); }
+
+/* tables */
+.table-wrap { margin: 1rem 0 1.5rem; overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; }
+table { width: 100%; border-collapse: collapse; font: 0.8125rem/1.45 var(--sans); font-variant-numeric: tabular-nums; }
+th, td { padding: 0.55rem 0.75rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--rule); }
+th { background: var(--panel); color: var(--muted); font-weight: 600; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: var(--row-hover); }
+th.num, td.num { text-align: right; white-space: nowrap; }
+td a { overflow-wrap: anywhere; }
+td > a.cite:only-child { display: inline-block; min-width: 15rem; }
+
+@media (max-width: 900px) {
+  body { display: flex; flex-direction: column; font-size: 1rem; }
+  main { order: 1; padding: 1.25rem 1rem 3rem; }
+  nav.sidebar { order: 2; position: static; height: auto; overflow: visible; padding: 2rem 1rem 3rem;
+    border-right: 0; border-top: 1px solid var(--rule); font-size: 0.875rem; }
+  nav.sidebar a { padding: 0.45rem 0; }
+  nav.report-links .contents-link { display: inline-flex; }
+  main { padding-top: 0.5rem; }
+  nav.report-links { margin-bottom: 1.75rem; }
+  .report-header { margin-bottom: 2rem; }
+  table { min-width: 34rem; }
+  h2 { font-size: 1.375rem; margin-top: 2.75rem; }
+}
+@media print {
+  body { display: block; background: #fff; color: #000; font-size: 10.5pt; }
+  nav.sidebar, nav.report-links, .skip-link { display: none; }
+  main { padding: 0; }
+  main > *, main > .table-wrap { max-width: none; }
+  a { color: inherit; text-decoration: none; }
+  details.quotes::details-content { content-visibility: visible; display: block; }
+  h2, h3 { break-after: avoid; }
+  ul.points > li, blockquote, tr { break-inside: avoid; }
+}
+</style>
+<!-- hmd:theme:end -->
+</head>
+<body class="report-outline">
+<a class="skip-link" href="#content">Skip to the report</a>
+<nav class="sidebar" id="contents" aria-label="Contents"><strong>Contents</strong><ol><li class="level-1"><a href="#tl-dr">TL;DR</a></li><li class="level-1"><a href="#1-what-claude-code-is-an-agentic-terminal-based-coding-assistant">1. What Claude Code is: an agentic terminal-based coding assistant</a></li><li class="level-2"><a href="#1-1-definition-a-fully-agentic-coding-assistant">1.1 Definition: a fully agentic coding assistant</a></li><li class="level-2"><a href="#1-2-works-with-any-ide-or-terminal">1.2 Works with any IDE or terminal</a></li><li class="level-2"><a href="#1-3-code-stays-local-no-indexing">1.3 Code stays local: no indexing</a></li><li class="level-2"><a href="#1-4-tools-permissions-and-context">1.4 Tools, permissions and context</a></li><li class="level-1"><a href="#2-architecture-and-the-harness-agentic-search-tools-and-the-model-loop">2. Architecture and the harness: agentic search, tools and the model loop</a></li><li class="level-2"><a href="#2-1-tools-in-a-loop-the-core-agent-design">2.1 Tools in a loop: the core agent design</a></li><li class="level-2"><a href="#2-2-agentic-search-instead-of-indexing">2.2 Agentic search instead of indexing</a></li><li class="level-2"><a href="#2-3-the-harness-around-the-model">2.3 The harness around the model</a></li><li class="level-2"><a href="#2-4-model-and-harness-improvements-driving-performance">2.4 Model and harness improvements driving performance</a></li><li class="level-1"><a href="#3-getting-started-codebase-q-a-and-onboarding">3. Getting started: codebase Q&amp;A and onboarding</a></li><li class="level-2"><a href="#3-1-codebase-q-a-as-the-recommended-starting-point">3.1 Codebase Q&amp;A as the recommended starting point</a></li><li class="level-2"><a href="#3-2-questions-about-git-history">3.2 Questions about git history</a></li><li class="level-2"><a href="#3-3-moving-from-questions-to-changes">3.3 Moving from questions to changes</a></li><li class="level-1"><a href="#4-core-workflow-planning-editing-verification-and-iteration">4. Core workflow: planning, editing, verification and iteration</a></li><li class="level-2"><a href="#4-1-planning-before-coding">4.1 Planning before coding</a></li><li class="level-2"><a href="#4-2-interrupting-and-steering-with-escape">4.2 Interrupting and steering with Escape</a></li><li class="level-2"><a href="#4-3-tests-and-self-checking-so-claude-can-iterate">4.3 Tests and self-checking so Claude can iterate</a></li><li class="level-2"><a href="#4-4-commits-and-pull-requests">4.4 Commits and pull requests</a></li><li class="level-2"><a href="#4-5-context-and-persistent-instructions-across-iterations">4.5 Context and persistent instructions across iterations</a></li><li class="level-2"><a href="#4-6-running-longer-and-in-parallel">4.6 Running longer and in parallel</a></li><li class="level-1"><a href="#5-matching-workflow-to-task-size-and-effective-prompting">5. Matching workflow to task size and effective prompting</a></li><li class="level-2"><a href="#5-1-matching-workflow-mode-to-task-size">5.1 Matching workflow mode to task size</a></li><li class="level-2"><a href="#5-2-prompting-by-letting-claude-interview-the-user">5.2 Prompting by letting Claude interview the user</a></li><li class="level-2"><a href="#5-3-visual-and-html-specs">5.3 Visual and HTML specs</a></li><li class="level-1"><a href="#6-context-management-and-claude-md">6. Context management and CLAUDE.md</a></li><li class="level-2"><a href="#6-1-claude-md-as-persistent-project-memory">6.1 CLAUDE.md as persistent project memory</a></li><li class="level-2"><a href="#6-2-managing-the-context-window-with-clear-and-compact">6.2 Managing the context window with /clear and /compact</a></li><li class="level-1"><a href="#7-permissions-safety-and-auto-mode">7. Permissions, safety and auto mode</a></li><li class="level-2"><a href="#7-1-auto-mode">7.1 Auto mode</a></li><li class="level-1"><a href="#8-extensibility-mcp-slash-commands-hooks-and-subagents">8. Extensibility: MCP, slash commands, hooks and subagents</a></li><li class="level-2"><a href="#8-1-mcp-servers-versus-cli-tools">8.1 MCP servers versus CLI tools</a></li><li class="level-2"><a href="#8-2-slash-commands-and-subagents">8.2 Slash commands and subagents</a></li><li class="level-2"><a href="#8-3-hooks-settings-and-permissions">8.3 Hooks, settings and permissions</a></li><li class="level-1"><a href="#9-productivity-features-and-parallel-sessions">9. Productivity features and parallel sessions</a></li><li class="level-2"><a href="#9-1-model-selection-extended-thinking-effort-and-fast-mode">9.1 Model selection, extended thinking, effort and fast mode</a></li><li class="level-2"><a href="#9-2-context-management">9.2 Context management</a></li><li class="level-2"><a href="#9-3-rendering-modes">9.3 Rendering modes</a></li><li class="level-1"><a href="#10-sdk-and-headless-automation">10. SDK and headless automation</a></li><li class="level-2"><a href="#10-1-headless-mode-and-the-sdk-basics">10.1 Headless mode and the SDK basics</a></li><li class="level-2"><a href="#10-2-allowed-tools-and-permissions">10.2 Allowed tools and permissions</a></li><li class="level-2"><a href="#10-3-output-formats-and-session-resumption">10.3 Output formats and session resumption</a></li><li class="level-2"><a href="#10-4-permission-prompt-tool">10.4 Permission prompt tool</a></li><li class="level-2"><a href="#10-5-ci-automation-with-the-claude-github-action">10.5 CI automation with the Claude GitHub action</a></li><li class="level-1"><a href="#11-ci-and-github-integration-issue-to-pr-automation-and-code-review">11. CI and GitHub integration: issue-to-PR automation and code review</a></li><li class="level-2"><a href="#11-1-issue-to-pr-automation">11.1 Issue-to-PR automation</a></li><li class="level-2"><a href="#11-2-automated-code-review">11.2 Automated code review</a></li><li class="level-2"><a href="#11-3-ci-reading-agents-and-closing-the-loop">11.3 CI-reading agents and closing the loop</a></li><li class="level-1"><a href="#12-agent-native-verification-and-evidence">12. Agent-native verification and evidence</a></li><li class="level-2"><a href="#12-1-dom-published-state-as-a-data-contract">12.1 DOM-published state as a data contract</a></li><li class="level-2"><a href="#12-2-hill-climbing-on-metrics">12.2 Hill-climbing on metrics</a></li><li class="level-1"><a href="#13-adoption-evaluation-and-the-future-of-engineering-work">13. Adoption, evaluation and the future of engineering work</a></li><li class="level-2"><a href="#13-1-internal-adoption-and-dogfooding-at-anthropic">13.1 Internal adoption and dogfooding at Anthropic</a></li><li class="level-2"><a href="#13-2-evaluation-by-vibes-and-model-harness-progress">13.2 Evaluation by vibes and model/harness progress</a></li><li class="level-2"><a href="#13-3-bottlenecks-shifting-to-verification-and-planning">13.3 Bottlenecks shifting to verification and planning</a></li><li class="level-2"><a href="#13-4-evolving-role-of-engineers-and-craft">13.4 Evolving role of engineers and craft</a></li></ol></nav>
+<main id="content">
+<nav class="report-links" aria-label="Reports"><a href="summary.html">Summary</a><a href="digest.html">Digest</a><a href="hybrid.html">Hybrid</a><span aria-current="page">Outline</span><a href="quotes.html">Quotes</a><a class="contents-link" href="#contents">Contents</a></nav>
+<p class="sample-banner">Sample output generated by Hive Mind Digest 0.1 on 2026-10-26 (claude-haiku-5-5 / claude-sonnet-5-5, $0.67). Model output: quotes are short excerpts of the cited public sources; check them at the linked timestamp.</p>
+<header class="report-header">
+<h1>Claude Code fundamentals <span class="report-kind">— Outline</span></h1>
+<p>Generated: 2026-10-26 | Sources: 6 videos</p>
+</header>
+<h2 id="tl-dr">TL;DR</h2>
+<ul><li>Claude Code is a fully agentic terminal assistant: as of 2025-07-31 it was described as instructions plus powerful tools with the model run in a loop until it decides it is done. It explores code with glob, grep and find rather than an index, so code stays local, and it works with any IDE or terminal.</li><li>Context and control: Claude Code has no built-in memory, so a short CLAUDE.md read at session start is the main way to share state. A 200,000-token window is managed with /clear and /compact. By default reads proceed, but writes and bash commands prompt for permission. Bash safety uses command classification and tiered allow/block lists. Escape interrupts and Shift+Tab switches to auto-accept edits.</li><li>Recommended workflow: begin with codebase Q&amp;A, then plan before coding. Match the approach to task size: one-shot for easy tasks, plan mode then auto-accept for medium, human-driven for hard. Give Claude tests or screenshots to self-verify. As of 2026-05-23, Opus 4.7 was recommended for the verification and design workflow over Sonnet because of its better vision model, and auto mode was recommended.</li><li>Extensibility and automation: extension points include hooks, MCP servers, slash commands and subagents. As of 2025-07-31, `claude -p` gave headless SDK access with `--allowedTools` for permissions and JSON or stream-json output. The Claude GitHub action, installed via /install-github-action, can create PRs from issues and review code.</li><li>Adoption and results: as of 2025-05-22, about 80% of Anthropic&#x27;s technical staff used Claude Code daily and onboarding dropped from two to three weeks to two to three days. As of 2026-05-06, Bun&#x27;s Claude bot Robbun must submit tests that fail on the old version and pass on the fix, and Boris Cherny called Opus 47 the first model where closing the loop felt doable day-to-day. The bottleneck for merging is now confidence in the changes.</li></ul>
+<h2 id="1-what-claude-code-is-an-agentic-terminal-based-coding-assistant">1. What Claude Code is: an agentic terminal-based coding assistant</h2>
+<h3 id="1-1-definition-a-fully-agentic-coding-assistant">1.1 Definition: a fully agentic coding assistant</h3>
+<ul><li>Claude Code is a fully agentic AI coding assistant meant for building features, writing entire functions or files, and fixing whole bugs, rather than completing a few lines of code at a time. [Mastering Claude Code in 30 minutes]</li><li>Anthropic describes Claude Code as a very pure agent: some instructions and powerful tools, with the model run in a loop until it decides it is done. The tools are those that someone skilled at a terminal would use to create and edit. [Claude Code best practices | Code w/…]</li><li>The harness is everything around the model: the system prompt, context management, tools, the ability to plug in MCP servers, settings and permissions. The model sees all of this context and output, and it makes a large difference in performance. [The future of agentic coding with…]</li><li>Coding agents have moved from a gimmick or prototype to part of the everyday inner development loop, so developers now use an agent rather than directly manipulating text in an IDE. [The future of agentic coding with…]</li></ul>
+<h3 id="1-2-works-with-any-ide-or-terminal">1.2 Works with any IDE or terminal</h3>
+<ul><li>Claude Code works with every IDE and terminal, including VS Code, Xcode, JetBrains IDEs and Vim. It runs locally, over remote SSH and inside tmux, so users do not have to change their existing workflow. [Mastering Claude Code in 30 minutes]</li></ul>
+<h3 id="1-3-code-stays-local-no-indexing">1.3 Code stays local: no indexing</h3>
+<ul><li>Claude Code does not index the codebase or upload it to a remote database. The code stays local, is not used to train generative models, and there is no setup wait before use. [Mastering Claude Code in 30 minutes]</li><li>Instead of retrieval over an index or embeddings, Claude explores the codebase through agentic search, using tools such as glob, grep and find. It can run further searches based on the results, much as a new team member would explore a codebase. [Claude Code best practices | Code w/…, Mastering Claude Code in 30 minutes]</li></ul>
+<h3 id="1-4-tools-permissions-and-context">1.4 Tools, permissions and context</h3>
+<ul><li>By default Claude Code lets read actions such as searching and reading proceed, but asks permission before writing, running bash commands, or doing things that could change the machine. [Claude Code best practices | Code w/…]</li><li>Bash safety relies on read-only command classification, static analysis of which commands can be safely combined, and a tiered allow-list and block-list permission system, because approving every command manually is impractical. [Mastering Claude Code in 30 minutes]</li><li>Claude Code has no built-in memory. A CLAUDE.md file in the working directory is placed into the prompt at startup and is the main way state is shared across sessions and teammates. [Claude Code best practices | Code w/…, Mastering Claude Code in 30 minutes]</li><li>Extension points include CLAUDE.md, settings, a permission system, hooks, MCP servers, slash commands and subagents. Slash commands are reusable markdown workflow files, and subagents are like slash commands that run in a forked context window. [The future of agentic coding with…]</li></ul>
+<h2 id="2-architecture-and-the-harness-agentic-search-tools-and-the-model-loop">2. Architecture and the harness: agentic search, tools and the model loop</h2>
+<h3 id="2-1-tools-in-a-loop-the-core-agent-design">2.1 Tools in a loop: the core agent design</h3>
+<ul><li>Some behaviours come from the model&#x27;s own abilities rather than the system prompt. Claude can answer git-history questions, and a &#x27;commit push&#x27; prompt produces a commit in the repo&#x27;s existing format, a pushed branch, and a GitHub pull request. The speaker says nothing in the system prompt covers git history, and that Claude uses git because the model knows how. [Mastering Claude Code in 30 minutes]</li></ul>
+<h3 id="2-2-agentic-search-instead-of-indexing">2.2 Agentic search instead of indexing</h3>
+<ul><li>CLAUDE.md files in subdirectories are not read automatically. By default only the one in the current working directory is read, because a monorepo opened at the top would otherwise blow up the context. Claude is encouraged to read relevant child-directory files it discovers while searching. [Claude Code best practices | Code w/…, Mastering Claude Code in 30 minutes]</li></ul>
+<h3 id="2-3-the-harness-around-the-model">2.3 The harness around the model</h3>
+<ul><li>Extension points have grown beyond CLAUDE.md, the original one, to include a settings system, a permission system, hooks, MCP servers, slash commands and subagents. [The future of agentic coding with…]</li><li>Slash commands are reusable markdown workflow files. Subagents are like slash commands but run in a forked context window. [The future of agentic coding with…]</li><li>Permissions: by default, reads such as searching and reading proceed without asking, while writing, running bash commands, or anything that could change the machine prompts the user. Bash safety relies on read-only command classification, static analysis of which commands can be safely combined, and a tiered allow-list and block-list system. Manually approving every command was impractical. [Claude Code best practices | Code w/…, Mastering Claude Code in 30 minutes]</li><li>Enterprise policy files can auto-approve shared commands for all employees and can block commands or URLs in a way employees cannot override. [Mastering Claude Code in 30 minutes]</li><li>Context is managed in a 200,000-token window for Anthropic models, which a long session can fill. /clear starts over while keeping CLAUDE.md. /compact inserts a request to summarize the session, and that summary seeds the next session. Anthropic spends a lot of time tuning the compact functionality. [Claude Code best practices | Code w/…]</li><li>CLAUDE.md is read into context at session start, and the speaker advises keeping it as short as possible, since long files use up context and are usually less useful. [Mastering Claude Code in 30 minutes]</li></ul>
+<h3 id="2-4-model-and-harness-improvements-driving-performance">2.4 Model and harness improvements driving performance</h3>
+<ul><li>Over the past year, both the model (3.7, 4.0 and Opus 4.1) and the harness got much better at agentic coding. The first Claude Code version, launched late last year, ran on Sonnet 3.5, and the speaker used it for maybe 10% of his code at that time. [The future of agentic coding with…]</li><li>With Sonnet 3.5 the model stayed on track for about a minute of autonomous work, and newer models stay autonomous for progressively longer. [The future of agentic coding with…]</li><li>Starting with Claude 4, models can think between tool calls, which the speaker says is where thinking matters most. Earlier models did not allow this. [Claude Code best practices | Code w/…]</li><li>Claude 4 follows instructions better, so CLAUDE.md contents are followed more closely, and moving to the new models is a chance to revisit what the file contains. [Claude Code best practices | Code w/…]</li><li>The model kept leaving explanatory comments in refactors despite prompt instructions against it. The speaker calls this a model problem that was mostly fixed in Claude 4. [Claude Code best practices | Code w/…]</li><li>Product evals for Claude Code are hard to build. The biggest signal on whether a model or harness change helps is how it feels in daily use (the &#x27;vibes&#x27;), given the broad range of tasks it is used for. [The future of agentic coding with…]</li><li>About 80% of technical people at Anthropic use Claude Code daily, and the team rewrites Claude Code itself all the time. [Mastering Claude Code in 30 minutes, The future of agentic coding with…]</li></ul>
+<h2 id="3-getting-started-codebase-q-a-and-onboarding">3. Getting started: codebase Q&amp;A and onboarding</h2>
+<h3 id="3-1-codebase-q-a-as-the-recommended-starting-point">3.1 Codebase Q&amp;A as the recommended starting point</h3>
+<ul><li>For someone brand new to Claude Code, the recommendation is to begin with questions about the codebase rather than writing code. This is also taught to new hires at Anthropic on their first day of technical onboarding. [Mastering Claude Code in 30 minutes, The future of agentic coding with…]</li><li>Anthropic reports that technical onboarding used to take about two to three weeks and now takes about two to three days. [Mastering Claude Code in 30 minutes]</li></ul>
+<h3 id="3-2-questions-about-git-history">3.2 Questions about git history</h3>
+<ul><li>One speaker asks Claude Code each Monday what he shipped that week. It reads the git log using his username and produces a summary for his standup. [Mastering Claude Code in 30 minutes]</li></ul>
+<h3 id="3-3-moving-from-questions-to-changes">3.3 Moving from questions to changes</h3>
+<ul><li>Asking Claude to search, find the cause of a bug and propose a plan before fixing it lets the user verify what it will do before changes are made. Another suggested approach is to ask it to brainstorm, make a plan and seek approval before writing code. [Claude Code best practices | Code w/…, Mastering Claude Code in 30 minutes]</li><li>Tasks are sized roughly as easy, medium and hard. Easy tasks Claude can usually write in one prompt, and the speaker tags @Claude on a GitHub issue to have it write the PR. For medium tasks he starts in plan mode with Shift+Tab, aligns on a plan, then switches to auto-accept to implement. For hard tasks the human stays the driver and uses Claude for code research and prototyping. [The future of agentic coding with…]</li></ul>
+<h2 id="4-core-workflow-planning-editing-verification-and-iteration">4. Core workflow: planning, editing, verification and iteration</h2>
+<h3 id="4-1-planning-before-coding">4.1 Planning before coding</h3>
+<ul><li>Vague prompts like &#x27;make it better&#x27; are poor prompting. A better prompt names the areas of interest without over-specifying the outcome and invites open-ended answers, so Claude iteratively interviews the user. Prompting Claude to use the ask-user-question tool triggers this interview workflow, and a better-specified prompt gives better outcomes. [How we Claude Code]</li><li>Markdown specs longer than about 200 lines are unlikely to be read by the user, and even less likely by colleagues. A rich HTML spec costs more tokens to generate once but reduces later iterations. [How we Claude Code]</li></ul>
+<h3 id="4-2-interrupting-and-steering-with-escape">4.2 Interrupting and steering with Escape</h3>
+<ul><li>Pressing Escape stops Claude at any time without corrupting the session. Examples include redirecting a file edit, or asking for a redo when 19 of 20 proposed lines look right. Pressing Escape twice jumps back in history. [Mastering Claude Code in 30 minutes, Claude Code best practices | Code w/…]</li><li>Escape lets the user stop Claude and interject when it seems to be going down the wrong path. Knowing when to press it, rather than letting Claude figure it out, is key to getting the most from the tool. [Claude Code best practices | Code w/…]</li><li>When Claude creates a to-do list for a big task, a user who is watching can press Escape and ask it to change the list if something looks wrong. [Claude Code best practices | Code w/…]</li><li>Shift+Tab switches to auto-accept edits mode, where edits are accepted automatically but bash commands still need approval, and Claude can be asked to undo edits. [Mastering Claude Code in 30 minutes]</li></ul>
+<h3 id="4-3-tests-and-self-checking-so-claude-can-iterate">4.3 Tests and self-checking so Claude can iterate</h3>
+<ul><li>Giving Claude a way to check its own work, such as unit tests, integration tests, Puppeteer screenshots or iOS simulator screenshots, lets it iterate by itself. Given a mock and asked to build a web UI, it gets close on the first try, and letting it iterate two or three times often gets it almost perfect. [Mastering Claude Code in 30 minutes]</li><li>Claude Code accepts images by drag-and-drop, file path or copy-paste. One user drops in a mock, asks for it to be implemented, and gives Claude a running local server to iterate against. [Mastering Claude Code in 30 minutes]</li><li>For front-end work, screenshots help when a problem such as slight misalignment is hard to articulate. Opus 4.7, with a better vision model, can proactively extract what the problem is. [How we Claude Code]</li><li>Claude Code&#x27;s own codebase has unusually high unit test coverage, because Claude Code makes adding unit tests easy and straightforward. [Claude Code best practices | Code w/…]</li><li>The Claude Code team records verification clips for basically all of its code changes, at least all front-end changes. [How we Claude Code]</li></ul>
+<h3 id="4-4-commits-and-pull-requests">4.4 Commits and pull requests</h3>
+<ul><li>A prompt such as &#x27;commit push&#x27; makes Claude Code write a commit in the repository&#x27;s existing format (inferred from the code, history and git log), push it to a branch, and create a GitHub pull request, with no further explanation needed. [Mastering Claude Code in 30 minutes]</li><li>The Claude Code team asks Claude to write the commit and PR messages when work is finished, and says this gives them great commits and PR messages. [Claude Code best practices | Code w/…]</li></ul>
+<h3 id="4-5-context-and-persistent-instructions-across-iterations">4.5 Context and persistent instructions across iterations</h3>
+<ul><li>Starting with Claude 4, models can think between tool calls, which the speaker says is where thinking matters most. Claude 4 also follows CLAUDE.md instructions more closely, which makes moving to new models a good time to review CLAUDE.md contents. [Claude Code best practices | Code w/…]</li></ul>
+<h3 id="4-6-running-longer-and-in-parallel">4.6 Running longer and in parallel</h3>
+<ul><li>As models become more capable, agents can run longer and take on more complex tasks, which means users need to change their working habits. One speaker advises resisting the urge to constrain the models, and accepting that the model is probably better at extracting requirements from the user than the user is at defining them up front. [How we Claude Code]</li><li>Users commonly run several Claude Code sessions in parallel, using tmux or SSH, multiple checkouts of the same repo, or git worktrees for isolation. The speaker runs two at once and knows people at Anthropic and some customers who run four. [Mastering Claude Code in 30 minutes, Claude Code best practices | Code w/…]</li><li>The speaker in one talk says users should use auto mode, which makes the workflow much easier. Fast mode costs more but is useful for iterating quickly on specs, and Opus 4.7 is recommended over Sonnet for the verification and design workflow because of its better vision model. [How we Claude Code]</li></ul>
+<h2 id="5-matching-workflow-to-task-size-and-effective-prompting">5. Matching workflow to task size and effective prompting</h2>
+<h3 id="5-1-matching-workflow-mode-to-task-size">5.1 Matching workflow mode to task size</h3>
+<ul><li>As models become more capable, agents can run longer and take on more complex tasks, which means working habits with Claude Code have to change. With Sonnet 3.5 the model stayed on track for about a minute, and newer models stay autonomous for progressively longer. [How we Claude Code, The future of agentic coding with…]</li></ul>
+<h3 id="5-2-prompting-by-letting-claude-interview-the-user">5.2 Prompting by letting Claude interview the user</h3>
+<ul><li>The more capable models get, the more one should resist constraining them. The model is probably better at extracting requirements from the user than the user is at defining them up front. [How we Claude Code]</li><li>Vague prompts like &#x27;make it better&#x27; are bad prompting. Better prompts name the domains of interest without over-specifying the outcome, and invite open-ended answers so that Claude iteratively interviews the user. [How we Claude Code]</li><li>Explicitly prompting Claude to use the ask-user-question tool triggers the interview workflow, after which it writes a spec. Better-specified prompts give better outcomes. [How we Claude Code]</li></ul>
+<h3 id="5-3-visual-and-html-specs">5.3 Visual and HTML specs</h3>
+<ul><li>Markdown specs longer than about 200 lines are unlikely to be read by the user and even less likely by colleagues. [How we Claude Code]</li><li>Opus 4.7 is recommended for this workflow because of its better vision model, and the speaker would not recommend Sonnet for it. Fast mode costs more but is useful for iterating quickly on specs. [How we Claude Code]</li></ul>
+<h2 id="6-context-management-and-claude-md">6. Context management and CLAUDE.md</h2>
+<h3 id="6-1-claude-md-as-persistent-project-memory">6.1 CLAUDE.md as persistent project memory</h3>
+<ul><li>A CLAUDE.md in the project root (the directory where Claude is started) is read automatically into context at the start of every session, and the first user turn includes it. [Mastering Claude Code in 30 minutes]</li><li>CLAUDE.md can also be set at the home-directory level. [Claude Code best practices | Code w/…]</li></ul>
+<h3 id="6-2-managing-the-context-window-with-clear-and-compact">6.2 Managing the context window with /clear and /compact</h3>
+<ul><li>Claude calls tools and the context builds up over time. Anthropic models have a 200,000-token context window, which a long session can max out. [Claude Code best practices | Code w/…]</li><li>/clear starts over and wipes everything except items such as CLAUDE.md. [Claude Code best practices | Code w/…]</li><li>/compact inserts a user-style message asking for a summary of everything done so far, written as if handing off to another developer. That summary seeds the next session. Anthropic spends a lot of time tuning this compact functionality. [Claude Code best practices | Code w/…]</li></ul>
+<h2 id="7-permissions-safety-and-auto-mode">7. Permissions, safety and auto mode</h2>
+<h3 id="7-1-auto-mode">7.1 Auto mode</h3>
+<ul><li>Auto mode is preferred over skipping permissions entirely because waiting on approvals stalls work. It is described as a real fix for that problem rather than blind trust. [Live coding session with Boris Cherny…, How we Claude Code]</li></ul>
+<h2 id="8-extensibility-mcp-slash-commands-hooks-and-subagents">8. Extensibility: MCP, slash commands, hooks and subagents</h2>
+<h3 id="8-1-mcp-servers-versus-cli-tools">8.1 MCP servers versus CLI tools</h3>
+<ul><li>More work can be given to Claude Code either by installing more CLI tools or by attaching more MCP servers. Based on experience, when a CLI tool is well known and well documented, the speaker recommends using it over grabbing an MCP server for the same purpose. [Claude Code best practices | Code w/…]</li><li>MCP is described as a really great extension point. [The future of agentic coding with…]</li></ul>
+<h3 id="8-2-slash-commands-and-subagents">8.2 Slash commands and subagents</h3>
+<ul><li>User-defined slash commands are reusable workflows written as markdown files kept in the code. One example is a commit slash command containing instructions on writing a good git commit, with the git commit Bash command pre-allowed so it need not be approved each time. [The future of agentic coding with…]</li></ul>
+<h3 id="8-3-hooks-settings-and-permissions">8.3 Hooks, settings and permissions</h3>
+<ul><li>The hook system is extensive, built in response to many user requests to extend or hook into Claude Code behavior. [The future of agentic coding with…]</li></ul>
+<h2 id="9-productivity-features-and-parallel-sessions">9. Productivity features and parallel sessions</h2>
+<h3 id="9-1-model-selection-extended-thinking-effort-and-fast-mode">9.1 Model selection, extended thinking, effort and fast mode</h3>
+<ul><li>The recommended effort setting is &#x27;X high&#x27; (as transcribed), though max effort can also be set. [How we Claude Code]</li><li>Fast mode costs more than normal operation but is useful for iterating quickly on specs. [How we Claude Code]</li></ul>
+<h3 id="9-2-context-management">9.2 Context management</h3>
+<ul><li>Anthropic&#x27;s models have a 200,000-token context window that a long session can fill. [Claude Code best practices | Code w/…]</li></ul>
+<h3 id="9-3-rendering-modes">9.3 Rendering modes</h3>
+<ul><li>Setting the environment variable for no-flicker mode to 1 enables a rewritten CLI renderer with virtualized scrolling and selection, giving constant memory and CPU usage and allowing mouse clicks in the composer. [Live coding session with Boris Cherny…]</li></ul>
+<h2 id="10-sdk-and-headless-automation">10. SDK and headless automation</h2>
+<h3 id="10-1-headless-mode-and-the-sdk-basics">10.1 Headless mode and the SDK basics</h3>
+<ul><li>The Claude Code SDK is a way to programmatically access the Claude Code agent in headless mode. [Building headless automation with…]</li><li>Calling Claude through the SDK is as simple as running `claude -p` followed by the prompt string. Log output can be piped in (for example `cat app.log` into `claude -p`), and in the speaker&#x27;s example Claude did a pretty decent job of summarizing the log failures. [Building headless automation with…]</li><li>Python and TypeScript SDKs, described as bindings for the Claude Code SDK, were announced as coming soon (as of 2025-07-31). [Building headless automation with…]</li></ul>
+<h3 id="10-2-allowed-tools-and-permissions">10.2 Allowed tools and permissions</h3>
+<ul><li>By default `claude -p` has no edit or destructive permission access. The `--allowedTools` option preconfigures the permissions a task needs, for example the write tool, which lets Claude write files to the file system. [Building headless automation with…]</li></ul>
+<h3 id="10-3-output-formats-and-session-resumption">10.3 Output formats and session resumption</h3>
+<ul><li>Structured output has two modes: stream-json streams messages as they become available, while json returns one giant JSON blob at the end. Parsing this JSON is how features are built on top of the SDK. [Building headless automation with…]</li></ul>
+<h3 id="10-4-permission-prompt-tool">10.4 Permission prompt tool</h3>
+<ul><li>The `--permission-prompt-tool` option offloads permission management to an MCP server, which can ask users in real time to accept or reject a tool. This avoids having to predict in advance which tools Claude will want, as `--allowedTools` requires. [Building headless automation with…]</li></ul>
+<h3 id="10-5-ci-automation-with-the-claude-github-action">10.5 CI automation with the Claude GitHub action</h3>
+<ul><li>The Claude GitHub action runs on existing GitHub Actions runners, so users do not have to manage their own infrastructure. [Building headless automation with…]</li><li>The action can read code, create PRs from GitHub issues, add commits to an existing branch or PR, answer questions about code, and review code. [Building headless automation with…]</li><li>In a demo, asked to change a PR&#x27;s background color from blue to green, Claude added a commit that changed the color in all three places where it was defined. [Building headless automation with…]</li><li>The action is built in three layers: the SDK as the foundation, a thin base action that talks to Claude Code and returns its response, and a PR action that handles comments, to-do lists, and PR links. Both the base action and the PR action are open source. [Building headless automation with…]</li><li>To install it, run `/install-github-action` in Claude Code inside the repo. The flow guides configuration and produces a PR adding a YAML workflow file. Bedrock and Vertex users need a slightly different and more manual setup. [Building headless automation with…]</li></ul>
+<h2 id="11-ci-and-github-integration-issue-to-pr-automation-and-code-review">11. CI and GitHub integration: issue-to-PR automation and code review</h2>
+<h3 id="11-1-issue-to-pr-automation">11.1 Issue-to-PR automation</h3>
+<ul><li>In Bun&#x27;s repository, a Claude bot (Robbun) runs automatically on every submitted issue to try to reproduce it, and can then submit a PR automatically. [Live coding session with Boris Cherny…]</li><li>Robbun&#x27;s PRs must include tests, a hard requirement. The check is that the test fails on the previous Bun version and passes on the fix branch, and the bot cannot submit a PR without that being the case. [Live coding session with Boris Cherny…]</li><li>Over the last three months on main, Robbun has become a bigger contributor to Bun than Boris Cherny, even though not all of its PRs are merged. [Live coding session with Boris Cherny…]</li><li>Bun&#x27;s team can mention the bot in Discord or Slack to request a feature, and it tries to implement it, sometimes producing a PR about an hour later. Robbun does not yet build features on its own. Cherny is hesitant to have it implement every request, because engineering taste determines whether something like an image processing library belongs in Bun. [Live coding session with Boris Cherny…]</li><li>Bun added an HTTP/3 server in the last two weeks, along with fetch support for HTTP/3 and HTTP/2. [Live coding session with Boris Cherny…]</li></ul>
+<h3 id="11-2-automated-code-review">11.2 Automated code review</h3>
+<ul><li>CodeRabbit is good for stylistic issues and checking that code follows CLAUDE.md. Claude&#x27;s code review is especially good at surfacing subtle edge cases that require full context to find. Bun uses the two together. [Live coding session with Boris Cherny…]</li></ul>
+<h3 id="11-3-ci-reading-agents-and-closing-the-loop">11.3 CI-reading agents and closing the loop</h3>
+<ul><li>For agents to close the loop, they should be able to read CI errors and build logs, write and test code, check and monitor CI, and read errors, so that by the time work reaches a person everything is set up. [Live coding session with Boris Cherny…]</li><li>In the live session Claude monitored a PR with a loop that slept for 20 minutes before waking to check again. [Live coding session with Boris Cherny…]</li><li>Cherny said Opus 47 is the first model where closing the loop felt doable day-to-day. Earlier it required heavy scaffolding and many tokens. [Live coding session with Boris Cherny…]</li><li>Giving the model a metric and a way to verify its result lets it keep iterating until it hits the metric (hill climbing), which Cherny considers Opus 47 uniquely good at. [Live coding session with Boris Cherny…]</li><li>Verification is easier in Bun because it is a CLI tool that needs no browser to test changes. [Live coding session with Boris Cherny…]</li><li>The bottleneck for merging a Robbun PR is now whether the developer feels confident the changes are correct. This is new, since previously the code was not good enough. Bun&#x27;s team is not yet ready to let Claude merge PRs automatically, and the next bottleneck is expected to be planning what to build and fix. [Live coding session with Boris Cherny…]</li><li>Repeated instructions should be written into CLAUDE.md, which makes it maintainable to have many Claude instances running all the time. [Live coding session with Boris Cherny…]</li></ul>
+<h2 id="12-agent-native-verification-and-evidence">12. Agent-native verification and evidence</h2>
+<h3 id="12-1-dom-published-state-as-a-data-contract">12.1 DOM-published state as a data contract</h3>
+<ul><li>In the demo to-do app, the component publishes its state to the DOM separately from the React internals. An agent can read that state directly instead of scraping the DOM, and verification can run independently of the app&#x27;s current state. [How we Claude Code]</li></ul>
+<h3 id="12-2-hill-climbing-on-metrics">12.2 Hill-climbing on metrics</h3>
+<ul><li>Boris Cherny asked Claude to make Bun&#x27;s image processing faster than sharp, using a benchmark run on a separate Linux box, and gave it a few ideas. Claude then did it. [Live coding session with Boris Cherny…]</li></ul>
+<h2 id="13-adoption-evaluation-and-the-future-of-engineering-work">13. Adoption, evaluation and the future of engineering work</h2>
+<h3 id="13-1-internal-adoption-and-dogfooding-at-anthropic">13.1 Internal adoption and dogfooding at Anthropic</h3>
+<ul><li>About 80% of technical people at Anthropic use Claude Code every day, including researchers who use the notebook tool. [Mastering Claude Code in 30 minutes]</li><li>The Claude Code team&#x27;s own codebase has abnormally high unit test coverage because Claude Code makes adding tests easy, and the team has Claude write commit and PR messages when work is finished. [Claude Code best practices | Code w/…]</li><li>Over the past year coding agents moved from a gimmick or prototype to part of the everyday inner development loop, so developers use an agent rather than directly manipulating text in an IDE. The first Claude Code version, launched late last year on Sonnet 3.5, was used by one speaker for maybe 10% of his code. [The future of agentic coding with…]</li><li>The Bun repository runs a Claude bot (Robbun) on every submitted issue to try to reproduce it. Over the last three months on main, Robbun has become a bigger contributor to Bun than Boris Cherny, even though not all its PRs are merged. In the last two weeks Bun added an HTTP/3 server and fetch support for HTTP/3 and HTTP/2. [Live coding session with Boris Cherny…]</li></ul>
+<h3 id="13-2-evaluation-by-vibes-and-model-harness-progress">13.2 Evaluation by vibes and model/harness progress</h3>
+<ul><li>Better agentic coding over the past year came from both model improvements (3.7, 4.0, Opus 4.1) and harness improvements. With Sonnet 3.5 the model stayed on track for about a minute, and newer models stay autonomous for progressively longer. [The future of agentic coding with…]</li><li>Claude 4 follows instructions better than earlier models, so CLAUDE.md is followed more closely and it may be a good time to revisit its contents. An earlier tendency to leave explanatory comments despite prompt instructions was mostly fixed in Claude 4. [Claude Code best practices | Code w/…]</li><li>As of 2026-05-06, Boris Cherny says Opus 47 is the first model where closing the loop felt doable day-to-day, whereas earlier it needed heavy scaffolding and tokens. He also says it is uniquely good at hill climbing: given a metric and a way to verify results, it iterates until the target is hit. [Live coding session with Boris Cherny…]</li></ul>
+<h3 id="13-3-bottlenecks-shifting-to-verification-and-planning">13.3 Bottlenecks shifting to verification and planning</h3>
+<ul><li>For Bun, the bottleneck for merging a Robbun PR is now whether the developer feels confident the changes are correct, which is new because the code previously wasn&#x27;t good enough. Robbun PRs must include tests that fail on the previous Bun version and pass on the fix branch, and the bot cannot submit a PR without this. [Live coding session with Boris Cherny…]</li><li>The next bottleneck after verification is expected to be planning what to build and fix. The Bun team is not yet ready to let Claude merge PRs automatically, though in some projects this could probably be automatic. [Live coding session with Boris Cherny…]</li><li>Watching Claude&#x27;s to-do list and pressing escape to redirect when it looks wrong helps keep it on track; knowing when to press escape versus letting Claude figure it out is key to getting the most from the tool. [Claude Code best practices | Code w/…]</li></ul>
+<h3 id="13-4-evolving-role-of-engineers-and-craft">13.4 Evolving role of engineers and craft</h3>
+<ul><li>Engineers&#x27; future work may shift toward reviewing changes Claude proactively makes, and in 12 or 24 months Claude may be directed by goals rather than specific tasks. [The future of agentic coding with…]</li><li>Code itself is no longer precious because agents let it be rewritten repeatedly (Claude Code itself is rewritten all the time), so building is more about the idea than the details. [The future of agentic coding with…]</li><li>Learners still have to master the craft — languages, compilers, runtimes, web apps, system design — while also becoming more creative. [The future of agentic coding with…]</li><li>Engineering taste still matters: Boris Cherny is hesitant to have the bot implement every feature request, since whether something like an image processing library belongs inside Bun involves taste, and it is not yet clear Claude is at that point. [Live coding session with Boris Cherny…]</li></ul>
+</main>
+</body>
+</html>

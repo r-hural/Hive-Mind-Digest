@@ -1,0 +1,15 @@
+{
+  "name": "hive-mind-digest",
+  "description": "Hive Mind Digest: multi-source research synthesis with verifiable claims (Public Preview).",
+  "owner": {
+    "name": "r-hural"
+  },
+  "plugins": [
+    {
+      "name": "hmd",
+      "source": "./",
+      "version": "0.1.0",
+      "description": "Videos, web pages, PDFs and local files in, a Markdown report with transcript-verified quotes out."
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+
+# Local environment and secrets: never commit these
+.env
+.env.*
+!.env.example
+*.local.json
+*.pem
+*.key
+credentials/
+
+# Hive Mind Digest state, caches and reports (the default home folder)
+data/
+videos-*.txt
+.claude/settings.local.json
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+
+# Logs
+*.log

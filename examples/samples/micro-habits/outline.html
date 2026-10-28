@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Micro-habits: small actions, lasting change, and evidence — Outline</title>
+<!-- hmd:theme:start -->
+<style id="hmd-theme">
+/* Hive Mind Digest report theme "paper" (v1).
+   This block is the whole look of the page: replace everything between the hmd:theme markers to
+   restyle it. The markup carries no inline style; it uses only these hooks:
+   body.report-{summary,digest,hybrid,outline,quotes,diff}, .skip-link, nav.sidebar (#contents, li.level-1/2),
+   main#content, .sample-banner, .report-header (h1 .report-kind), nav.report-links (span[aria-current], .contents-link),
+   h2-h4 with ids, ul.points, .badge + .badge-{confirmed,sources,partly,disputed,new}, .cites, a.cite,
+   details.quotes, blockquote, q.quote, cite.source, p.contradiction, .legend, .note, .sources-line,
+   .table-wrap, table, th.num/td.num. */
+:root {
+  color-scheme: light dark;
+  --paper: #fbfaf6; --ink: #1d1c19; --ink-2: #3f3c35; --muted: #5f5b52;
+  --rule: #e4e0d5; --rule-strong: #cbc5b6; --panel: #f3f0e7; --row-hover: #f7f5ef;
+  --link: #1f4b99; --link-hover: #12326b; --accent: #a4500a; --accent-soft: #f5e4cf;
+  --ok: #1d6436; --ok-bg: #e2f0e4; --warn: #744800; --warn-bg: #f8ecc8;
+  --bad: #9e2428; --bad-bg: #f8e4e1; --new: #1f4b99; --new-bg: #e3eaf6;
+  --serif: Charter, "Bitstream Charter", "Sitka Text", Cambria, "Iowan Old Style", Georgia, serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --measure: 42rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #15140f; --ink: #ebe7dc; --ink-2: #d3cdbf; --muted: #a39e91;
+    --rule: #2b2923; --rule-strong: #403c33; --panel: #1d1c16; --row-hover: #1a1914;
+    --link: #a3bdf2; --link-hover: #cbdafa; --accent: #eaa45e; --accent-soft: #3d2c17;
+    --ok: #86d29b; --ok-bg: #16291d; --warn: #e9c374; --warn-bg: #2e2512;
+    --bad: #f39a94; --bad-bg: #351a1a; --new: #a3bdf2; --new-bg: #19243a;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: 1.5rem; scrollbar-color: var(--rule-strong) var(--paper); }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+body { margin: 0; background: var(--paper); color: var(--ink);
+  font: 1.0625rem/1.65 var(--serif); font-kerning: normal;
+  display: grid; grid-template-columns: minmax(15rem, 18rem) minmax(0, 1fr); }
+::selection { background: var(--accent-soft); color: var(--ink); }
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 0.18em;
+  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent); }
+a:hover { color: var(--link-hover); text-decoration-color: currentColor; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+.skip-link { position: absolute; left: 1rem; top: -4rem; z-index: 2; padding: 0.6rem 0.9rem;
+  background: var(--ink); color: var(--paper); font: 600 0.875rem/1 var(--sans); border-radius: 4px; }
+.skip-link:focus { top: 1rem; }
+.skip-link:hover { color: var(--paper); }
+
+/* contents */
+nav.sidebar { grid-column: 1; grid-row: 1; position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  padding: 2.5rem 1.25rem 3rem 1.5rem; border-right: 1px solid var(--rule);
+  font: 0.8125rem/1.4 var(--sans); scrollbar-width: thin; }
+nav.sidebar strong { display: block; margin-bottom: 0.9rem; color: var(--muted);
+  font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+nav.sidebar ol { list-style: none; margin: 0; padding: 0; }
+nav.sidebar a { display: block; padding: 0.22rem 0; text-decoration: none; color: var(--ink-2); }
+nav.sidebar a:hover { color: var(--link); }
+nav.sidebar li.level-1 { margin-top: 0.55rem; }
+nav.sidebar li.level-1:first-child { margin-top: 0; }
+nav.sidebar li.level-1 > a { color: var(--ink); font-weight: 600; }
+nav.sidebar li.level-2 { margin-left: 0.15rem; padding-left: 0.7rem; border-left: 1px solid var(--rule); }
+nav.sidebar li.level-2 > a { color: var(--muted); }
+nav.sidebar li.level-2 > a:hover { color: var(--link); }
+
+/* page */
+main { grid-column: 2; min-width: 0; padding: 1rem clamp(1.5rem, 4vw, 3rem) 6rem clamp(2rem, 7vw, 7rem); }
+main > * { max-width: var(--measure); }
+main > .table-wrap { max-width: 56rem; }
+.sample-banner { margin: 0 0 2.25rem; padding: 0.6rem 0.85rem; background: var(--panel);
+  border: 1px solid var(--rule); border-radius: 6px; color: var(--muted); font: 0.8125rem/1.5 var(--sans); }
+.report-header h1 { margin: 0 0 0.6rem; font-weight: 600; letter-spacing: -0.015em; line-height: 1.12;
+  font-size: clamp(1.625rem, 1.2rem + 1.4vw, 2.25rem); text-wrap: balance; }
+.report-kind { display: inline-block; color: var(--muted); font-weight: 400; }
+.report-header { margin-bottom: 2.75rem; }
+.report-header p { margin: 0; color: var(--muted); font: 0.875rem/1.5 var(--sans); font-variant-numeric: tabular-nums; }
+nav.report-links { display: flex; flex-wrap: wrap; column-gap: 0.25rem; margin: 0 0 2.5rem;
+  border-bottom: 1px solid var(--rule); font: 0.875rem/1 var(--sans); }
+nav.report-links a, nav.report-links span { display: inline-flex; align-items: center; min-height: 2.75rem;
+  padding: 0 0.7rem; margin-bottom: -1px; border-bottom: 2px solid transparent;
+  color: var(--muted); text-decoration: none; }
+nav.report-links a:first-child, nav.report-links span:first-child { padding-left: 0; }
+nav.report-links a:hover { color: var(--ink); border-bottom-color: var(--rule-strong); }
+nav.report-links span[aria-current] { color: var(--ink); font-weight: 600; border-bottom-color: var(--accent); }
+nav.report-links .contents-link { display: none; margin-left: auto; }
+
+h2, h3, h4 { line-height: 1.25; text-wrap: balance; font-weight: 600; }
+h2 { margin: 3.5rem 0 1rem; padding-top: 1.5rem; border-top: 1px solid var(--rule);
+  font-size: 1.625rem; letter-spacing: -0.01em; }
+.report-header + h2 { margin-top: 0; padding-top: 0; border-top: 0; }
+h3 { margin: 2.25rem 0 0.6rem; font-size: 1.1875rem; }
+h4 { margin: 1.75rem 0 0.4rem; color: var(--muted); font: 600 0.75rem/1.3 var(--sans);
+  letter-spacing: 0.06em; text-transform: uppercase; }
+.report-digest h3:not([id]) { color: var(--muted); font: 600 0.75rem/1.3 var(--sans);
+  letter-spacing: 0.06em; text-transform: uppercase; margin-top: 1.75rem; }
+:is(h2, h3):target { text-decoration: underline 2px var(--accent); text-underline-offset: 0.3em; }
+p { margin: 0 0 1rem; }
+ul { margin: 0 0 1.25rem; padding-left: 1.25rem; }
+li { margin: 0.35rem 0; }
+li::marker { color: var(--muted); }
+
+/* points */
+ul.points { list-style: none; padding: 0; }
+ul.points > li { margin: 0; padding: 0.85rem 0; border-bottom: 1px solid var(--rule); }
+ul.points > li:first-child { padding-top: 0.25rem; }
+ul.points > li:last-child { border-bottom: 0; }
+.badge { display: inline-block; padding: 0 0.5rem; border-radius: 999px; white-space: nowrap;
+  font: 600 0.6875rem/1.65 var(--sans); letter-spacing: 0.02em; vertical-align: 0.12em;
+  font-variant-numeric: tabular-nums; }
+.badge-confirmed { color: var(--ok); background: var(--ok-bg); }
+.badge-sources { color: var(--muted); background: var(--panel); box-shadow: inset 0 0 0 1px var(--rule); }
+.badge-partly { color: var(--warn); background: var(--warn-bg); }
+.badge-disputed { color: var(--bad); background: var(--bad-bg); }
+.badge-new { color: var(--new); background: var(--new-bg); }
+.cites { display: block; margin-top: 0.3rem; color: var(--muted); font: 0.8125rem/1.5 var(--sans); }
+.cites a.cite { font-variant-numeric: tabular-nums; }
+
+/* quotes */
+details.quotes { margin-top: 0.4rem; }
+details.quotes summary { width: max-content; cursor: pointer; color: var(--muted); font: 0.8125rem/1.8 var(--sans); }
+details.quotes summary:hover { color: var(--ink); }
+blockquote { margin: 0.7rem 0 0.2rem; padding: 0.05rem 0 0.05rem 1rem; border-left: 1px solid var(--rule-strong); }
+q.quote { color: var(--ink-2); font-style: italic; }
+cite.source { display: block; margin-top: 0.2rem; color: var(--muted); font: normal 0.8125rem/1.5 var(--sans); }
+.report-quotes main ul { list-style: none; padding: 0; }
+.report-quotes main ul > li { margin: 0; padding: 1.1rem 0 1.25rem; border-bottom: 1px solid var(--rule); }
+.report-quotes main ul > li:last-child { border-bottom: 0; }
+.report-quotes main li > strong { display: block; font-weight: 600; line-height: 1.5; }
+.report-quotes blockquote { margin-top: 0.85rem; }
+.report-quotes q.quote { font-size: 1.0625rem; }
+
+/* notes, contradictions */
+.legend, .note, .sources-line { color: var(--muted); font: 0.8125rem/1.55 var(--sans); }
+.legend { margin: 1.5rem 0 0; padding: 0.75rem 1rem; background: var(--panel); border-radius: 6px; }
+p.contradiction { margin: 1.25rem 0; padding: 0.9rem 1.1rem; background: var(--bad-bg); border-radius: 6px;
+  color: var(--ink); font-size: 1rem; }
+p.contradiction strong { color: var(--bad); font: 600 0.875rem/1.5 var(--sans); }
+
+/* tables */
+.table-wrap { margin: 1rem 0 1.5rem; overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; }
+table { width: 100%; border-collapse: collapse; font: 0.8125rem/1.45 var(--sans); font-variant-numeric: tabular-nums; }
+th, td { padding: 0.55rem 0.75rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--rule); }
+th { background: var(--panel); color: var(--muted); font-weight: 600; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: var(--row-hover); }
+th.num, td.num { text-align: right; white-space: nowrap; }
+td a { overflow-wrap: anywhere; }
+td > a.cite:only-child { display: inline-block; min-width: 15rem; }
+
+@media (max-width: 900px) {
+  body { display: flex; flex-direction: column; font-size: 1rem; }
+  main { order: 1; padding: 1.25rem 1rem 3rem; }
+  nav.sidebar { order: 2; position: static; height: auto; overflow: visible; padding: 2rem 1rem 3rem;
+    border-right: 0; border-top: 1px solid var(--rule); font-size: 0.875rem; }
+  nav.sidebar a { padding: 0.45rem 0; }
+  nav.report-links .contents-link { display: inline-flex; }
+  main { padding-top: 0.5rem; }
+  nav.report-links { margin-bottom: 1.75rem; }
+  .report-header { margin-bottom: 2rem; }
+  table { min-width: 34rem; }
+  h2 { font-size: 1.375rem; margin-top: 2.75rem; }
+}
+@media print {
+  body { display: block; background: #fff; color: #000; font-size: 10.5pt; }
+  nav.sidebar, nav.report-links, .skip-link { display: none; }
+  main { padding: 0; }
+  main > *, main > .table-wrap { max-width: none; }
+  a { color: inherit; text-decoration: none; }
+  details.quotes::details-content { content-visibility: visible; display: block; }
+  h2, h3 { break-after: avoid; }
+  ul.points > li, blockquote, tr { break-inside: avoid; }
+}
+</style>
+<!-- hmd:theme:end -->
+</head>
+<body class="report-outline">
+<a class="skip-link" href="#content">Skip to the report</a>
+<nav class="sidebar" id="contents" aria-label="Contents"><strong>Contents</strong><ol><li class="level-1"><a href="#tl-dr">TL;DR</a></li><li class="level-1"><a href="#1-core-mechanics-of-behaviour-change-motivation-ability-and-triggers">1. Core mechanics of behaviour change: motivation, ability and triggers</a></li><li class="level-2"><a href="#1-1-the-three-part-model-motivation-ability-and-trigger">1.1 The three-part model: motivation, ability and trigger</a></li><li class="level-2"><a href="#1-2-why-motivation-and-willpower-alone-fall-short">1.2 Why motivation and willpower alone fall short</a></li><li class="level-2"><a href="#1-3-evidence-for-clarity-planning-and-specific-cues">1.3 Evidence for clarity, planning and specific cues</a></li><li class="level-2"><a href="#1-4-making-the-behaviour-small-and-easy">1.4 Making the behaviour small and easy</a></li><li class="level-1"><a href="#2-shrinking-habits-the-tiny-habit-and-two-minute-starts">2. Shrinking habits: the tiny-habit and two-minute starts</a></li><li class="level-2"><a href="#2-1-scaling-a-habit-down-to-a-two-minute-version">2.1 Scaling a habit down to a two-minute version</a></li><li class="level-2"><a href="#2-2-building-the-habit-of-showing-up">2.2 Building the habit of showing up</a></li><li class="level-1"><a href="#3-anchoring-and-habit-stacking">3. Anchoring and habit stacking</a></li><li class="level-2"><a href="#3-1-the-anchoring-principle-and-the-after-i-format">3.1 The anchoring principle and the &#x27;after I...&#x27; format</a></li><li class="level-2"><a href="#3-2-examples-of-anchored-habits">3.2 Examples of anchored habits</a></li><li class="level-2"><a href="#3-3-choosing-and-matching-triggers">3.3 Choosing and matching triggers</a></li><li class="level-1"><a href="#4-implementation-intentions-and-specific-planning">4. Implementation intentions and specific planning</a></li><li class="level-2"><a href="#4-1-evidence-that-specific-plans-improve-follow-through">4.1 Evidence that specific plans improve follow-through</a></li><li class="level-2"><a href="#4-2-premortems-and-trigger-cues">4.2 Premortems and trigger cues</a></li><li class="level-1"><a href="#5-identity-consistency-and-the-minimum-viable-day">5. Identity, consistency and the minimum viable day</a></li><li class="level-1"><a href="#6-how-long-habits-take-to-form">6. How long habits take to form</a></li><li class="level-2"><a href="#6-1-the-21-day-idea">6.1 The 21-day idea</a></li><li class="level-2"><a href="#6-2-variation-found-in-research">6.2 Variation found in research</a></li><li class="level-1"><a href="#7-timing-sequencing-and-keystone-habits">7. Timing, sequencing and keystone habits</a></li><li class="level-2"><a href="#7-1-time-of-day-and-control-over-hours">7.1 Time of day and control over hours</a></li><li class="level-2"><a href="#7-2-timing-of-exercise-and-eating">7.2 Timing of exercise and eating</a></li><li class="level-2"><a href="#7-3-sequencing-and-habit-stacking">7.3 Sequencing and habit stacking</a></li><li class="level-1"><a href="#8-tracking-accountability-and-handling-lapses">8. Tracking, accountability and handling lapses</a></li><li class="level-2"><a href="#8-1-tracking-progress">8.1 Tracking progress</a></li><li class="level-2"><a href="#8-2-social-accountability">8.2 Social accountability</a></li><li class="level-2"><a href="#8-3-one-habit-at-a-time">8.3 One habit at a time</a></li><li class="level-1"><a href="#9-environment-friction-and-phone-distraction">9. Environment, friction and phone distraction</a></li><li class="level-2"><a href="#9-1-phone-friction-and-distance-for-focus">9.1 Phone friction and distance for focus</a></li><li class="level-2"><a href="#9-2-small-pauses-and-substitutions-that-add-friction-to-phone-use">9.2 Small pauses and substitutions that add friction to phone use</a></li><li class="level-2"><a href="#9-3-phone-and-environment-effects-on-sleep">9.3 Phone and environment effects on sleep</a></li><li class="level-2"><a href="#9-4-using-existing-routines-and-breaks-as-cues">9.4 Using existing routines and breaks as cues</a></li><li class="level-1"><a href="#10-body-and-sleep-micro-habits">10. Body and sleep micro-habits</a></li><li class="level-2"><a href="#10-1-light-exposure-and-circadian-rhythm">10.1 Light exposure and circadian rhythm</a></li><li class="level-2"><a href="#10-2-hydration">10.2 Hydration</a></li><li class="level-2"><a href="#10-3-movement-and-breaks">10.3 Movement and breaks</a></li><li class="level-2"><a href="#10-4-nutrition-timing-and-snacking">10.4 Nutrition timing and snacking</a></li><li class="level-2"><a href="#10-5-supplements">10.5 Supplements</a></li><li class="level-2"><a href="#10-6-alcohol">10.6 Alcohol</a></li><li class="level-1"><a href="#11-focus-learning-and-mental-state-micro-habits">11. Focus, learning and mental-state micro-habits</a></li><li class="level-2"><a href="#11-1-attention-focus-and-phone-distraction">11.1 Attention, focus and phone distraction</a></li><li class="level-2"><a href="#11-2-breathing-and-pauses-before-reacting">11.2 Breathing and pauses before reacting</a></li><li class="level-2"><a href="#11-3-reading">11.3 Reading</a></li><li class="level-2"><a href="#11-4-creating-versus-consuming">11.4 Creating versus consuming</a></li><li class="level-2"><a href="#11-5-meditation-and-visualisation">11.5 Meditation and visualisation</a></li><li class="level-1"><a href="#12-relationship-and-compounding-gain-micro-habits">12. Relationship and compounding-gain micro-habits</a></li><li class="level-2"><a href="#12-1-small-social-and-kindness-habits">12.1 Small social and kindness habits</a></li><li class="level-2"><a href="#12-2-compounding-gain-claims">12.2 Compounding-gain claims</a></li></ol></nav>
+<main id="content">
+<nav class="report-links" aria-label="Reports"><a href="summary.html">Summary</a><a href="digest.html">Digest</a><a href="hybrid.html">Hybrid</a><span aria-current="page">Outline</span><a href="quotes.html">Quotes</a><a class="contents-link" href="#contents">Contents</a></nav>
+<p class="sample-banner">Sample output generated by Hive Mind Digest 0.1 on 2026-10-27 (claude-haiku-5-5 / claude-sonnet-5-5, replayed from recorded model responses). Model output: quotes are short excerpts of the cited public sources; check them at the linked timestamp.</p>
+<header class="report-header">
+<h1>Micro-habits: small actions, lasting change, and evidence <span class="report-kind">— Outline</span></h1>
+<p>Generated: 2026-10-27 | Sources: 13 videos</p>
+</header>
+<h2 id="tl-dr">TL;DR</h2>
+<ul><li>A behaviour occurs when motivation, ability and a trigger combine at the same moment. Easy behaviours need little motivation and hard ones need a lot. Relying mainly on motivation or willpower is called a losing strategy, so the advice is to make behaviours tiny, anchor them to existing routines (&quot;after I [current habit], I will [new habit]&quot;) and celebrate immediately.</li><li>Scaling a habit down to a two-minute version (one page, taking out the yoga mat) is meant to establish showing up before optimising. Examples include a reader who limited early gym visits to five minutes and a medical student who studied 2 minutes a day. One author reports about a hundred books in 5 years, and bare-minimum days avoid a zero day.</li><li>Specific plans improve follow-through: people who state a specific intention are two to three times more likely to follow through, and chronological when/where/how planning makes people nearly two times more likely to act. In a cited exercise study, about one in three tracking-only controls worked out versus nine in 10 who wrote a specific plan. A failure premortem and trigger alarms are also recommended.</li><li>Habit-formation timing is contested. The 21-day claim, popularised by Maxwell Maltz in 1960, is described as not evidence-based. A review of more than 2600 participants found formation starts within about 2 months but ranges from 4 days to nearly a year (up to 335 days). One speaker&#x27;s model gives about 66 days to automaticity, and newer research is described as suggesting 18 to 254 days.</li><li>Lapses and environment: missing a day or two reportedly does not significantly derail habits, and self-compassion beats self-criticism. Adopting one habit at a time is advised. Phone distance is reported to cut focus by 10 to 20% when the phone is in view, and consistent sleep and wake times are called the most evidence-based tip. The compounding claim for 1% daily gains is stated inconsistently (37 times versus 38%).</li></ul>
+<h2 id="1-core-mechanics-of-behaviour-change-motivation-ability-and-triggers">1. Core mechanics of behaviour change: motivation, ability and triggers</h2>
+<h3 id="1-1-the-three-part-model-motivation-ability-and-trigger">1.1 The three-part model: motivation, ability and trigger</h3>
+<ul><li>Three things must happen at the same moment for a behaviour to occur: some level of motivation, the ability to do it, and a trigger (a call to action). When all three combine at once, the behaviour occurs. [TEDx Talks]</li><li>Easy behaviours can be performed with low motivation, whereas hard behaviours require high motivation. [TEDx Talks]</li><li>An existing daily behaviour can serve as the trigger: placing the new tiny behaviour after it removes the need for post-it notes or alarms. [TEDx Talks]</li><li>Phone alarms with a label (for example, take 10 deep breaths and remind yourself to be calm) set at several times a day are proposed as trigger moments to activate habits, because written intentions alone are not enough in day-to-day life. The speaker reports that many people worldwide who tried this found it changed everything, and that Fortune 50 CEOs said it was the one thing that changed their life most dramatically. [Evan Carmichael, Nischa]</li><li>Taking two deep breaths before checking any notification creates a small buffer between an event and the reaction; the author reports sending fewer regrettable texts since starting. [Ideas To Thrive, Rational Raymond]</li></ul>
+<h3 id="1-2-why-motivation-and-willpower-alone-fall-short">1.2 Why motivation and willpower alone fall short</h3>
+<ul><li>Relying primarily on motivation to change behaviour long-term is described as a losing strategy, because motivation applies to temporary behaviour change; the same is said of willpower. [TEDx Talks]</li><li>Systems are argued to work better than goals because systems work even on days when you don&#x27;t feel like it, whereas goals require constant motivation, which is described as exhausting. [Ideas To Thrive]</li><li>Using willpower to achieve goals is likened to gunpowder: only a starter. Achieving goals is said to depend on beliefs, perceptions, habits and attitudes at the non-conscious level. [Evan Carmichael]</li><li>Willpower is said to be needed only until a routine reaches automaticity, after which it is freed for the next routine. In the speaker&#x27;s model, installation takes about 66 days in total from the starting point, including roughly 20 days of destruction. [Evan Carmichael]</li><li>Long-term change is said to come about in only two ways, one of which is changing your environment, including your social environment. [TEDx Talks]</li></ul>
+<h3 id="1-3-evidence-for-clarity-planning-and-specific-cues">1.3 Evidence for clarity, planning and specific cues</h3>
+<ul><li>In an exercise study cited by the speaker, about one in three people in the control group who only tracked workouts worked out; motivation alone did nothing for the motivated group; and nine out of 10 people who wrote a specific implementation intention (at least 20 minutes of vigorous exercise on a given day, time and place) worked out. [Evan Carmichael]</li><li>The speaker says a specific plan can raise the odds of habit success two to three times, and that many people who think they lack motivation actually lack clarity about when, where and how to implement the habit. [Evan Carmichael]</li><li>A failure premortem (imagining it is six months later and the goal has failed, then narrating why) is recommended to surface challenges and build better plans. [Evan Carmichael]</li></ul>
+<h3 id="1-4-making-the-behaviour-small-and-easy">1.4 Making the behaviour small and easy</h3>
+<ul><li>Design should target the behaviours that lead to an outcome such as weight loss, not the outcome itself. Most behaviours needed for long-term health are proposed to be habits. [TEDx Talks]</li><li>One example of a tiny habit anchored to an existing routine: two push-ups after peeing, progressing to five, then eight, and now usually about 12, adding up to roughly 50 to 70 push-ups a day depending on water intake. [TEDx Talks]</li><li>Celebrating immediately after a tiny behaviour, with a quick self-affirmation such as &#x27;I&#x27;m awesome&#x27;, is recommended rather than delayed rewards like going out or baking. [TEDx Talks]</li><li>Committing to only 2 minutes when starting a habit is reported to work: starting with a 2-minute timer and one page a day, the author says he has read about a hundred books in 5 years. [Ideas To Thrive, Nischa]</li><li>On bad days the author does the bare minimum (one page, one sentence or one push-up) to avoid a zero day, and says this probably saved his life. [Ideas To Thrive]</li><li>Adopting only one new habit at a time is stated as the best way to avoid abandoning new habits, and adherence is said to ebb and flow, so the best way to maintain a habit is not to expect to follow it at all times. [Evan Carmichael]</li></ul>
+<h2 id="2-shrinking-habits-the-tiny-habit-and-two-minute-starts">2. Shrinking habits: the tiny-habit and two-minute starts</h2>
+<h3 id="2-1-scaling-a-habit-down-to-a-two-minute-version">2.1 Scaling a habit down to a two-minute version</h3>
+<ul><li>The two-minute rule says to take whatever habit you are trying to build and scale it down to something that takes two minutes or less. Examples: &#x27;read 30 books a year&#x27; becomes &#x27;read one page&#x27;, and &#x27;do yoga four days a week&#x27; becomes &#x27;take out my yoga mat&#x27;. [AppSumo]</li><li>When trying to do something you do not really want to do, the advice is to simplify the task to 2 minutes or less. Examples: a whole reading assignment becomes one paragraph, and memorizing the periodic table becomes 10 flash cards. When starting out, the advice is to limit yourself to only 2 minutes. [Mike and Matty]</li><li>Committing to just two minutes of a task, in one speaker&#x27;s experience, almost always leads to continuing past two minutes once started. [Nischa]</li><li>A small daily reading amount adds up: five pages takes about 10 minutes and comes to almost 12 books over a year. [Nischa]</li></ul>
+<h3 id="2-2-building-the-habit-of-showing-up">2.2 Building the habit of showing up</h3>
+<ul><li>A habit must be established before it can be improved: it has to become the standard in your life before you worry about optimizing and scaling it up. [AppSumo, Mike and Matty]</li><li>A reader named Mitch, who ended up losing over a hundred pounds, had a rule for the first six weeks at the gym that he could not stay longer than five minutes. This was described as mastering the art of showing up and becoming the type of person who went to the gym four days a week, even for only two minutes. [AppSumo]</li><li>People get locked into finding the best workout program, ideal diet plan or perfect business idea. They focus so much on optimizing that they do not give themselves permission to show up even in a small way. The two-minute rule is said to help overcome the tendency to bite off more than you can chew. [AppSumo]</li><li>One speaker wanted to study 1 hour daily before dinner in medical school but limited each session to 2 minutes. They report that doing this consistently day after day made them a person who studies daily and who was mastering the habit of just showing up. Their reasoning was that someone who can&#x27;t study 2 minutes a day would never study an hour a day. [Mike and Matty]</li></ul>
+<h2 id="3-anchoring-and-habit-stacking">3. Anchoring and habit stacking</h2>
+<h3 id="3-1-the-anchoring-principle-and-the-after-i-format">3.1 The anchoring principle and the &#x27;after I...&#x27; format</h3>
+<ul><li>Habit stacking pairs a new habit with an already established one in the form &#x27;after I [current habit], I will [new habit]&#x27;. [Successful By Design]</li></ul>
+<h3 id="3-2-examples-of-anchored-habits">3.2 Examples of anchored habits</h3>
+<ul><li>Example stacks include doing 10 push-ups while morning coffee brews and closing the eyes for five deep breaths after getting into the car. [Successful By Design]</li><li>Meditating for 10 minutes right after the daily morning shower, a long-established habit, made meditation much easier to stick with after it had been nearly impossible before habit stacking. [Zach Highley]</li></ul>
+<h3 id="3-3-choosing-and-matching-triggers">3.3 Choosing and matching triggers</h3>
+<ul><li>Trigger selection can start with a list of things done daily without fail, such as a morning or evening routine or going to work. [Successful By Design]</li><li>Triggers should be frequency-matched: pairing a push-up habit meant for three times a week with daily coffee can leave the habit disconnected. [Successful By Design]</li><li>For people whose mornings depend on other people, such as those with kids, plugging a new habit into the morning is described as a recipe for disaster. [Successful By Design]</li><li>The trigger should be the specific last action before a break, such as closing the computer, rather than a vague cue like &#x27;when my lunch break starts&#x27;. [Successful By Design]</li><li>Planning when, where and how a task will be done is linked in studies to people being nearly two times more likely to do it. [Zach Highley]</li><li>Making habits easy and specific is emphasised as key to long-term success. [Douglas Vandergraph]</li></ul>
+<h2 id="4-implementation-intentions-and-specific-planning">4. Implementation intentions and specific planning</h2>
+<h3 id="4-1-evidence-that-specific-plans-improve-follow-through">4.1 Evidence that specific plans improve follow-through</h3>
+<ul><li>People who state a specific intention are two to three times more likely to follow through than those who do not. [Rational Raymond, Evan Carmichael, Zach Highley]</li><li>People who name and write down a very specific intention, such as sending a proposal to a client by end of day, are much more likely to follow through. [Nischa]</li></ul>
+<h3 id="4-2-premortems-and-trigger-cues">4.2 Premortems and trigger cues</h3>
+<ul><li>A recurring alarm every 2 hours to stand, walk or stretch was followed for a week by one speaker, who reports improved back pain and more energy. [Nischa]</li></ul>
+<h2 id="5-identity-consistency-and-the-minimum-viable-day">5. Identity, consistency and the minimum viable day</h2>
+<h2 id="6-how-long-habits-take-to-form">6. How long habits take to form</h2>
+<h3 id="6-1-the-21-day-idea">6.1 The 21-day idea</h3>
+<ul><li>Maxwell Maltz is credited with first popularizing the idea that a new habit takes 21 days to form, in his 1960 book Psycho-Cybernetics. [Douglas Vandergraph, Medical Dialogues]</li></ul>
+<h3 id="6-2-variation-found-in-research">6.2 Variation found in research</h3>
+<ul><li>A systematic review by University of South Australia researchers, covering more than 2600 participants, found that habit formation starts within around 2 months, but formation times vary widely, from 4 days to nearly a year (up to 335 days to establish). [Medical Dialogues]</li><li>Newer research is described as suggesting habit formation can take anywhere from 18 to 254 days, depending on the complexity of the habit. [Douglas Vandergraph]</li></ul>
+<h2 id="7-timing-sequencing-and-keystone-habits">7. Timing, sequencing and keystone habits</h2>
+<h3 id="7-1-time-of-day-and-control-over-hours">7.1 Time of day and control over hours</h3>
+<ul><li>As a general rule, the earlier in the day a habit is done, the better the odds it happens, because later hours accumulate more interruptions, other people&#x27;s agendas and emergencies. [Huberman Lab Clips]</li><li>One creator spent the first hour of the day, before studying, on YouTube work in medical school and gained 100,000 subscribers in a year. He also avoids his phone until after that first hour and until 9:00 a.m., saying his brain is at its peak mental state in the morning and the phone detracts from that. [Zach Highley]</li><li>Consistent sleep and wake times are described as probably the most impactful and most evidence-based tip, because the body&#x27;s circadian rhythm craves consistency. [Zach Highley]</li></ul>
+<h3 id="7-2-timing-of-exercise-and-eating">7.2 Timing of exercise and eating</h3>
+<ul><li>One speaker wakes around 7 and usually works out around 10 to 11. He cites some data suggesting that 3 hours or 11 hours after waking are ideal workout times. [Huberman Lab Clips]</li><li>Hard early-morning exercise is said to produce a runner&#x27;s high, attributed to GABA and endocannabinoids. It is also said to produce a day-long stress resilience called stress inoculation. [Zach Highley]</li><li>Exercise probably quadruples cortisol levels, at least during and after the workout depending on the workout. Separately, one creator recommends drinking water before coffee because the body naturally produces cortisol on waking. [Huberman Lab Clips, Dan Go]</li><li>Stopping eating after 6 p.m. is said to prevent nighttime snacking and improve sleep quality. The suggested rule is to start the fasting period at least three to five hours before sleep. [Dan Go]</li></ul>
+<h3 id="7-3-sequencing-and-habit-stacking">7.3 Sequencing and habit stacking</h3>
+<ul><li>One speaker says that if he does his three daily habits he usually has a good day, and that reading and writing are easier after he works out. [Huberman Lab Clips]</li><li>The same speaker says that when he reads material relevant to what he is writing, he almost cannot stop himself from writing, often riffing after two or three pages. He also says his writing got worse after 100,000 subscribers, and theorises he was writing more but reading less. [Huberman Lab Clips]</li><li>One creator&#x27;s first-hour project work must produce something that could be shipped, published or given to others, and includes no reading, watching or research. [Zach Highley]</li></ul>
+<h2 id="8-tracking-accountability-and-handling-lapses">8. Tracking, accountability and handling lapses</h2>
+<h3 id="8-1-tracking-progress">8.1 Tracking progress</h3>
+<ul><li>A study in the British Journal of Health Psychology reportedly found that participants who wrote down their goals and tracked their progress were significantly more likely to achieve them than those who didn&#x27;t. [Douglas Vandergraph]</li></ul>
+<h3 id="8-2-social-accountability">8.2 Social accountability</h3>
+<ul><li>One speaker argues that people need others to hold them accountable because they will never push themselves as hard as they can. The value of a personal trainer is having someone push you to do three more reps when you want to quit. [Evan Carmichael]</li></ul>
+<h3 id="8-3-one-habit-at-a-time">8.3 One habit at a time</h3>
+<ul><li>Tim Ferriss states that the best way to avoid abandoning new habits is to adopt only one at a time. He notes that people who say they want to learn to cook are typically trying to adopt about five new habits at once. [Evan Carmichael, Successful By Design]</li></ul>
+<h2 id="9-environment-friction-and-phone-distraction">9. Environment, friction and phone distraction</h2>
+<h3 id="9-1-phone-friction-and-distance-for-focus">9.1 Phone friction and distance for focus</h3>
+<ul><li>Keeping the phone on the desk, even face down, creates almost zero friction to check it (&quot;I&#x27;ll just look at it for a second&quot; can cost 10 minutes), whereas keeping it in another room, where checking requires getting up and walking, makes the day go completely differently. [Nischa]</li><li>Studies found that when a phone is in a student&#x27;s pocket, on the desk, or otherwise in their line of sight, effectiveness when studying, working or problem-solving drops by 10 to 20% compared with when it is in another room or put away. [Zach Highley]</li><li>Studies show conversation quality at the dinner table decreases by up to 20-30% when a phone is simply on the table, even when it is not being used. [Zach Highley]</li></ul>
+<h3 id="9-2-small-pauses-and-substitutions-that-add-friction-to-phone-use">9.2 Small pauses and substitutions that add friction to phone use</h3>
+<ul><li>Sitting with boredom for 2 minutes instead of grabbing the phone is described as valuable, since boredom is called information and some of the author&#x27;s best insights come when he is bored and staring at the wall. [Ideas To Thrive]</li><li>Counting to 10 when genuinely annoyed before responding is reported to have saved the author from many stupid arguments on Twitter. [Ideas To Thrive]</li></ul>
+<h3 id="9-3-phone-and-environment-effects-on-sleep">9.3 Phone and environment effects on sleep</h3>
+<ul><li>Having the phone in the same room where a person sleeps affects their sleep dramatically. [Zach Highley]</li><li>A consistent wind-down cue at the same time each night helps the brain transition from awake to rest and improves how fast a person falls asleep and how well they sleep, according to sleep researcher Matthew Walker as relayed by the speaker. [Nischa]</li><li>Getting natural light soon after waking helps set the body clock; the speaker reports feeling more awake in the morning and sleeping better at night on days they do it. [Nischa, Rational Raymond]</li></ul>
+<h3 id="9-4-using-existing-routines-and-breaks-as-cues">9.4 Using existing routines and breaks as cues</h3>
+<ul><li>In controlled studies, a person who takes a 30-minute break within 3 hours of work gets more done in that total time than a person who works 3 hours straight; no screen time, nature, sunlight and exercise are described as brain-clearing activities for returning to work. [Zach Highley]</li></ul>
+<h2 id="10-body-and-sleep-micro-habits">10. Body and sleep micro-habits</h2>
+<h3 id="10-1-light-exposure-and-circadian-rhythm">10.1 Light exposure and circadian rhythm</h3>
+<ul><li>Getting sunlight into the eyes within the first 30 minutes of waking is said to anchor the biological clock, regulating cortisol, improving nighttime melatonin and stabilizing energy through the day. [Rational Raymond]</li><li>Physical exercise, no screen time, breaks, nature and sunlight are described as brain-clearing activities that help people return to work, and breaks are said to reduce stress and make people more effective afterwards. [Zach Highley]</li></ul>
+<h3 id="10-2-hydration">10.2 Hydration</h3>
+<ul><li>Research in the Journal of Nutrition is cited as finding that even mild dehydration reduces cognitive performance and increases feelings of fatigue; the suggestion is to drink two glasses of water before coffee, email or anything else. [Rational Raymond]</li></ul>
+<h3 id="10-3-movement-and-breaks">10.3 Movement and breaks</h3>
+<ul><li>The 20-20-20 habit means looking at something about 20 feet away for 20 seconds every 20 minutes, to counter eyes that feel tired, gritty or dry after hours on a screen about a foot away. [Nischa]</li><li>Counting down from the intended reps instead of counting up is reported to help complete more sets at the target rep count, because the mind gives up before the body does. [Dan Go]</li></ul>
+<h3 id="10-4-nutrition-timing-and-snacking">10.4 Nutrition timing and snacking</h3>
+<ul><li>For an urgent snack craving, drinking a glass of water and waiting 20 minutes often makes the craving disappear, on the premise that most snacking is driven by boredom or dehydration rather than hunger. [Dan Go]</li></ul>
+<h3 id="10-5-supplements">10.5 Supplements</h3>
+<ul><li>Adding 200 mg of L-theanine to coffee is said to give energy without jitters when combined with caffeine. [Dan Go]</li><li>Taking 10 to 15 g of creatine per day is reported to help recovery and slightly boost cognitive performance. [Dan Go]</li></ul>
+<h3 id="10-6-alcohol">10.6 Alcohol</h3>
+<ul><li>Evidence is cited that alcohol at any amount affects sleep quality, liver disease, brain health and cancer risk. [Zach Highley]</li></ul>
+<h2 id="11-focus-learning-and-mental-state-micro-habits">11. Focus, learning and mental-state micro-habits</h2>
+<h3 id="11-1-attention-focus-and-phone-distraction">11.1 Attention, focus and phone distraction</h3>
+<ul><li>A University of California, Irvine study reportedly found it takes an average of 23 minutes to fully regain focus after an interruption. [Rational Raymond]</li><li>The brain is said not to truly multitask but to switch back and forth rapidly, which is exhausting; doing one thing at a time is described as not slower. [Ideas To Thrive]</li></ul>
+<h3 id="11-2-breathing-and-pauses-before-reacting">11.2 Breathing and pauses before reacting</h3>
+<ul><li>A conscious breathing practice of inhaling for four, holding for seven and exhaling for eight, with one cycle taking about 20 seconds, is done at least three times a day: on waking, during the afternoon energy crash and before bed, and also when anxious. [Ideas To Thrive]</li></ul>
+<h3 id="11-3-reading">11.3 Reading</h3>
+<ul><li>One speaker says there is a bunch of evidence that reading benefits the brain and thinking, even comic books, and that reading anything is better than reading nothing. [Zach Highley]</li></ul>
+<h3 id="11-4-creating-versus-consuming">11.4 Creating versus consuming</h3>
+<ul><li>Almost every thought is said to be downstream from what a person consumes, so choosing who to follow and what to read, watch or listen to chooses future thoughts. [Huberman Lab Clips]</li><li>One author spends at least 10 minutes creating something for every hour spent consuming content. [Ideas To Thrive]</li></ul>
+<h3 id="11-5-meditation-and-visualisation">11.5 Meditation and visualisation</h3>
+<ul><li>A University of Chicago study reportedly found that participants who visualized practicing free throws improved nearly as much as those who physically practiced them. [Rational Raymond]</li></ul>
+<h2 id="12-relationship-and-compounding-gain-micro-habits">12. Relationship and compounding-gain micro-habits</h2>
+<h3 id="12-1-small-social-and-kindness-habits">12.1 Small social and kindness habits</h3>
+<ul><li>Expressing genuine appreciation is said to benefit the giver as much as the receiver, per Barbara Fredrickson&#x27;s research on positive emotion. [Nischa]</li><li>Research attributed to Sonia Leuba at UC Riverside found that performing small acts of kindness meaningfully boosts the giver&#x27;s happiness, sometimes more than receiving kindness. [Rational Raymond]</li><li>Asking people directly instead of assuming is supported by research reported to show that people are far worse at reading others&#x27; minds than they believe. A 2021 meta-analysis in Psychological Science is cited as confirming that people dramatically overestimate their ability to read others&#x27; emotions. [Nischa, Rational Raymond]</li><li>One speaker has at least one conversation a week with a professional he is interested in, and says this led to becoming a doctor, launching a YouTube channel and landing his dream job. [Zach Highley]</li></ul>
+<h3 id="12-2-compounding-gain-claims">12.2 Compounding-gain claims</h3>
+<ul><li>Improving 1% every day is claimed to compound to a 37 times improvement by the end of the year. [Zach Highley]</li><li>Another speaker claims that small 1% daily improvements can lead to a 38% improvement by the end of the year. [Dan Go]</li></ul>
+</main>
+</body>
+</html>

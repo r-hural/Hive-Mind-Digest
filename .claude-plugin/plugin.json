@@ -1,0 +1,13 @@
+{
+  "name": "hmd",
+  "displayName": "Hive Mind Digest",
+  "version": "0.1.0",
+  "description": "Multi-source research synthesis with verifiable claims: YouTube and other videos, web pages, PDFs and local files in, a Markdown report with transcript-verified quotes out. Public Preview.",
+  "author": {
+    "name": "r-hural"
+  },
+  "homepage": "https://github.com/r-hural/Hive-Mind-Digest",
+  "repository": "https://github.com/r-hural/Hive-Mind-Digest",
+  "license": "MIT",
+  "keywords": ["research", "youtube", "transcripts", "synthesis", "digest", "citations", "pdf", "web"]
+}

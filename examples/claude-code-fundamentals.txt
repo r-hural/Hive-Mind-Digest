@@ -1,0 +1,30 @@
+# Bundled example for /hmd:init: Claude Code fundamentals.
+# Public videos from Anthropic's official YouTube channels, with captions. One URL per line;
+# lines starting with # are ignored. Trailing "# comment" text on a URL line is NOT supported
+# (parse_youtube_url would fail on it), so each title lives on its own comment line above its URL.
+# Verify with: .venv/Scripts/hmd.exe run --topic "Claude Code fundamentals" --input examples/claude-code-fundamentals.txt --stages fetch,transcribe
+# fetch,transcribe is free (no LLM call) and proves captions exist for all six videos, which is
+# what protects the /hmd:init 15-minute goal.
+# hmd run always builds the LLM provider up front, even when the requested stages never call it,
+# so this verify command still needs ANTHROPIC_API_KEY set (or --provider claude_cli) even though
+# nothing gets billed.
+# This verify command creates a notebook. Running the full example afterwards gets slug
+# claude-code-fundamentals-2 unless you `hmd resume claude-code-fundamentals` instead.
+
+# Mastering Claude Code in 30 minutes (Anthropic)
+https://www.youtube.com/watch?v=6eBSHbLKuN0
+
+# Claude Code best practices | Code w/ Claude (Anthropic)
+https://www.youtube.com/watch?v=gv0WHhKelSE
+
+# Building headless automation with Claude Code | Code w/ Claude (Anthropic)
+https://www.youtube.com/watch?v=dRsjO-88nBs
+
+# The future of agentic coding with Claude Code (Anthropic)
+https://www.youtube.com/watch?v=iF9iV4xponk
+
+# How we Claude Code (Claude)
+https://www.youtube.com/watch?v=IlqJqcl8ONE
+
+# Live coding session with Boris Cherny and Jarred Sumner (Claude)
+https://www.youtube.com/watch?v=DlTCu_pNDHE

@@ -1,0 +1,45 @@
+# Sample notebook "Claude Code best practices" (examples/samples/claude-code-best-practices/).
+# Sources from 2025 and 2026 on purpose: older advice (thinking keywords, .claude/commands,
+# Sonnet 3.7-era model tips, permission prompts) meets newer advice (/effort, skills, Claude 5.5,
+# auto mode), so the report shows contradictions and dated claims. One URL per line; each title
+# lives on its own comment line above its URL. The second batch, added after the first merge, is
+# claude-code-best-practices-update.txt (hmd notebook add ... --input, then hmd resume).
+
+# 2025-02-25 Anthropic Claude Code with Sonnet 3.7 in 15 Minutes (Developers Digest)
+https://www.youtube.com/watch?v=dRaHQRxJAEs
+
+# 2025-05-22 Mastering Claude Code in 30 minutes (Anthropic)
+https://www.youtube.com/watch?v=6eBSHbLKuN0
+
+# 2025-07-11 How I use Claude Code (+ my best tips) (Steve, Builder.io)
+https://www.youtube.com/watch?v=n7iT5r0Sl_Y
+
+# 2025-07-25 Claude Code NEW Sub Agents in 7 Minutes (Developers Digest)
+https://www.youtube.com/watch?v=DNGxMX7ym44
+
+# 2025-07-31 Claude Code best practices | Code w/ Claude (Anthropic)
+https://www.youtube.com/watch?v=gv0WHhKelSE
+
+# 2025-08-22 CLAUDE.md Files & /init (Net Ninja)
+https://www.youtube.com/watch?v=i_OHQH4-M2Y
+
+# 2025-08-28 Slash Commands (Net Ninja)
+https://www.youtube.com/watch?v=52KBhQqqHuc
+
+# 2025-10-27 800+ hours of Learning Claude Code in 8 minutes (Edmund Yong)
+https://www.youtube.com/watch?v=Ffh9OeJ7yxw
+
+# 2025-12-16 The only Claude Code guide you'll ever need (Opus 4.5) (Alex Finn)
+https://www.youtube.com/watch?v=UVJXh57MgI0
+
+# 2026-02-04 Stop Writing Bad CLAUDE.md Files (camelCase)
+https://www.youtube.com/watch?v=lJNjDoJi6hQ
+
+# 2026-05-10 The CLAUDE.md file (Claude)
+https://www.youtube.com/watch?v=O0FGCxkHM-U
+
+# 2026-05-18 Context Management in Claude Code (Claude)
+https://www.youtube.com/watch?v=eW3oTyfeWZ0
+
+# 2026-10-12 Claude 5.5 Model Mistakes you may still be making (Jay E / RoboNuggets)
+https://www.youtube.com/watch?v=gvESqM6s0kM

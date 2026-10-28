@@ -1,0 +1,11 @@
+# Secret scan before every commit (Evidence-Echo lesson): `pre-commit install` once per checkout.
+# Needs gitleaks on PATH (https://github.com/gitleaks/gitleaks); it scans what is staged.
+repos:
+  - repo: local
+    hooks:
+      - id: gitleaks
+        name: gitleaks (staged changes)
+        entry: gitleaks protect --staged --redact --no-banner
+        language: system
+        pass_filenames: false
+        always_run: true

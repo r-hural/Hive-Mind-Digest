@@ -1,0 +1,40 @@
+# Hive Mind Digest configuration. Every key here is read by pipeline/config.py;
+# unknown keys are rejected at startup.
+
+home: data                      # hmd_home: state, cache and vault live under here
+
+llm:
+  provider: anthropic_api       # anthropic_api (API key, per token) | claude_cli (Claude subscription)
+  models:
+    analyze: claude-haiku-5-5
+    merge: claude-sonnet-5-5
+  max_output_tokens: 64000      # per call; responses cut at this limit are an error, never silently truncated
+  max_parallel: 4               # worker threads for transcribe / analyze / merge sections
+  retry_attempts: 5             # on 429 / 5xx / overloaded / network errors, exponential backoff
+  retry_base_delay_seconds: 2
+  rate_limits:
+    anthropic_api: {rpm: 50, tpm: 400000}
+    claude_cli: {rpm: 6, tpm: 0}
+  batch:                        # Message Batches, anthropic_api only (IDEA-304): half price, slower
+    enabled: false              # or per run: --batch / --no-batch
+    min_requests: 2             # a smaller wave (merge outline, verification) goes to the direct API
+    max_wave: 100               # requests per batch
+    gather_seconds: 2           # quiet time that closes a wave
+    poll_seconds: 30
+    max_wait_hours: 24          # cancel a batch still running after this (the API expires it at 24 h)
+
+transcription:
+  providers: [youtube_captions, ytdlp_subs, whisper_local]   # tried in this order
+  languages: [en]                                            # caption languages in preference order
+  whisper:
+    model_size: base
+    timeout_seconds: 1800       # per source; a timeout marks the source `error`
+  allow_private_hosts: false   # true lets web/PDF sources come from loopback, private and link-local addresses
+
+run:
+  budget_usd: 5.0               # per run; the run pauses when the usage log crosses it; 0 disables
+
+output:
+  show_anchors: false           # render the verbatim quote under each point
+  html: true                    # also write an .html twin of every report
+  formats: ["summary", "diff"]  # report files; summary is always written; diff needs a previous merge

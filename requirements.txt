@@ -1,0 +1,14 @@
+# Exact pins (IDEA-284): what CI and a plugin install get. pyproject.toml keeps the compatible
+# ranges; tests/test_repo_hygiene.py checks each pin lies inside its pyproject range, and
+# scripts/release.py refuses to export an unpinned line.
+anthropic==0.125.0  # pyproject keeps <1.0: 1.x migrates to httpx2; separate migration
+youtube-transcript-api==1.2.4
+yt-dlp==2026.8.19
+pydantic==2.13.5
+rapidfuzz==3.14.6
+pyyaml==6.0.3
+python-dotenv==1.2.4
+trafilatura==2.3.1
+pypdf==6.21.0
+pytest==9.1.1
+pytest-mock==3.16.0
