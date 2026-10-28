@@ -10,7 +10,7 @@ import sys
 from typing import Callable
 
 from pipeline import db
-from pipeline.config import Config, load_config
+from pipeline.config import CONFIG_PATH, Config, load_config
 from pipeline.sources import SourceRef
 from pipeline.transcription.base import Transcriber, TranscriptionError
 from pipeline.transcription.cache import TranscriptCache
@@ -62,9 +62,9 @@ def main(argv: list[str] | None = None) -> None:
     configure_console()
     parser = argparse.ArgumentParser()
     parser.add_argument("--source-id", type=int, required=True)
-    parser.add_argument("--config", default="config/config.yaml")
+    parser.add_argument("--config", default=None)
     args = parser.parse_args(argv)
-    cfg = load_config(args.config)
+    cfg = load_config(args.config or CONFIG_PATH, explicit=args.config is not None)
     status = transcribe_source(cfg.db_path, args.source_id, cfg)
     print(status)
     if status == "error":

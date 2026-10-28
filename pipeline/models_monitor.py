@@ -19,11 +19,13 @@ import http.client
 import json
 import re
 import sqlite3
+import urllib.error
 import urllib.request
 from dataclasses import asdict, dataclass
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Callable
+from urllib.parse import urlsplit
 
 from pipeline.pricing import (
     PRICES, TOKENIZER_FACTOR, Price, model_line, model_version, new_tokenizer, price_for,
@@ -281,10 +283,43 @@ def evaluate(models: dict[str, str], provider: str, prices: dict[str, Price],
 
 # --- inputs: pages, account, usage ---------------------------------------------------------------
 
+MAX_PAGE_BYTES = 8 * 1024 * 1024     # a docs page is far smaller; more is refused, not read
+
+
+# The docs pages may move between Anthropic's docs hosts; a redirect anywhere else is refused.
+DOCS_HOSTS = frozenset({"platform.claude.com", "docs.claude.com", "docs.anthropic.com"})
+
+
+class _SameHostRedirect(urllib.request.HTTPRedirectHandler):
+    """Follow a redirect only to https on the same host or another of DOCS_HOSTS."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        old, new = urlsplit(req.full_url), urlsplit(newurl)
+        host = (new.hostname or "").lower()
+        if new.scheme != "https" or (host != (old.hostname or "").lower() and host not in DOCS_HOSTS):
+            raise urllib.error.HTTPError(newurl, code, f"refusing a redirect off {old.hostname}: {newurl}",
+                                         headers, fp)
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+_opener = urllib.request.build_opener(_SameHostRedirect)
+
+
+def _open(req, timeout):
+    return _opener.open(req, timeout=timeout)
+
+
 def fetch_text(url: str, timeout: float = FETCH_TIMEOUT) -> str:
+    """One public docs page as text: https only, redirects within the same host, at most
+    MAX_PAGE_BYTES (release security review, 2026-10-28). OSError on any refusal."""
+    if urlsplit(url).scheme != "https":
+        raise OSError(f"models page must be https: {url}")
     req = urllib.request.Request(url, headers={"User-Agent": "hmd-model-monitor"})
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return resp.read().decode("utf-8")
+    with _open(req, timeout) as resp:
+        body = resp.read(MAX_PAGE_BYTES + 1)
+    if len(body) > MAX_PAGE_BYTES:
+        raise OSError(f"models page is larger than {MAX_PAGE_BYTES} bytes: {url}")
+    return body.decode("utf-8")
 
 
 def list_account_models(api_key: str) -> set[str]:

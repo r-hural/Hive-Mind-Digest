@@ -111,3 +111,35 @@ def test_relative_file_and_url_options_resolve_against_the_working_directory(tmp
     fetch_stage(p, nid, url="notes.md", log=lambda m: None)
     urls = sorted(s["url"] for s in db.get_notebook_sources(p, nid))
     assert urls == sorted([(work / "a.pdf").resolve().as_uri(), (work / "notes.md").resolve().as_uri()])
+
+
+# A downloaded list must not pull in any local file (release security review, 2026-10-28): a local
+# path in an --input list has to resolve inside the list's own folder; --file stays unrestricted.
+def test_input_list_refuses_a_local_file_outside_its_folder(tmp_path):
+    p, nid = _nb(tmp_path)
+    (tmp_path / "secret.txt").write_text("private", encoding="utf-8")
+    lists = tmp_path / "lists"
+    lists.mkdir()
+    (lists / "ok.md").write_text("# N\n\ntext", encoding="utf-8")
+    for line in ("../secret.txt", str(tmp_path / "secret.txt")):
+        lst = lists / "in.txt"
+        lst.write_text(f"ok.md\n{line}\n", encoding="utf-8")
+        with pytest.raises(ValueError, match="outside the input list's folder"):
+            fetch_stage(p, nid, input_file=str(lst), log=lambda m: None)
+    assert db.get_notebook_sources(p, nid) == []          # nothing registered, not even ok.md
+
+
+def test_input_list_accepts_local_files_in_its_folder_and_below(tmp_path):
+    p, nid = _nb(tmp_path)
+    (tmp_path / "sub").mkdir()
+    (tmp_path / "sub" / "a.md").write_text("# A\n\ntext", encoding="utf-8")
+    (tmp_path / "b.md").write_text("# B\n\ntext", encoding="utf-8")
+    lst = tmp_path / "in.txt"
+    lst.write_text(f"sub/a.md\n{tmp_path / 'b.md'}\n", encoding="utf-8")
+    assert len(fetch_stage(p, nid, input_file=str(lst), log=lambda m: None)) == 2
+
+
+def test_file_option_may_name_any_local_file(tmp_path):
+    p, nid = _nb(tmp_path)
+    (tmp_path / "elsewhere.md").write_text("# E\n\ntext", encoding="utf-8")
+    assert len(fetch_stage(p, nid, file_path=str(tmp_path / "elsewhere.md"), log=lambda m: None)) == 1

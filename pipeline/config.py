@@ -11,6 +11,11 @@ Which config file is used (resolve_config_path, IDEA-310), first match wins:
 4. `config/config.yaml` relative to the working directory (a development checkout).
 Sources 1-3 are explicit: a missing file is an error (except for `hmd init`, which writes it, and
 `hmd doctor`, which reports it). Source 4 silently falls back to the built-in defaults.
+
+Source 4 is trusted like the CWD's `.env` (pipeline/envfile.py): a downloaded folder must not lift a
+security check, so unless the file is this checkout's own `config/config.yaml`, each key in
+UNTRUSTED_KEYS (data folder, budget, LLM provider, transcribers, private hosts) is honoured only within
+its rule and otherwise falls back to the default (a warning names each one); every other key is honoured.
 """
 from __future__ import annotations
 
@@ -25,11 +30,23 @@ from pipeline import bootstrap
 
 CONFIG_PATH = "config/config.yaml"
 CONFIG_ENV = "HMD_CONFIG"
+# This checkout's root (pipeline/config.py -> root); its config/config.yaml is trusted in full.
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 PROVIDERS = ("anthropic_api", "claude_cli")
 # Every known provider name. `supadata` (DECISION-026, a third-party API) is off by default: only
 # DEFAULT_TRANSCRIBERS run unless config lists it (intended order: ytdlp_subs, supadata, whisper_local).
 TRANSCRIBERS = ("youtube_captions", "ytdlp_subs", "supadata", "whisper_local")
 DEFAULT_TRANSCRIBERS = ("youtube_captions", "ytdlp_subs", "whisper_local")
+# Keys an implicit config from a foreign folder may set only within a rule: (section or None for the
+# top level, key) -> allowed(value, default). A value outside its rule falls back to the default.
+# Tightening is allowed (a lower budget, fewer default transcribers); lifting a safeguard is not.
+UNTRUSTED_KEYS = {
+    (None, "home"): lambda v, d: v == d,                                   # where the DB, cache and reports go
+    ("run", "budget_usd"): lambda v, d: 0 < v <= d,                        # 0 would switch the cap off
+    ("llm", "provider"): lambda v, d: v == d,                              # claude_cli bills the subscription
+    ("transcription", "providers"): lambda v, d: set(v) <= set(DEFAULT_TRANSCRIBERS),   # no supadata
+    ("transcription", "allow_private_hosts"): lambda v, d: v == d,
+}
 DEFAULT_RATE_LIMITS: dict[str, dict[str, int]] = {
     "anthropic_api": {"rpm": 50, "tpm": 400_000},
     "claude_cli": {"rpm": 6, "tpm": 0},
@@ -212,8 +229,7 @@ def run_mode(prefix: str | None = None) -> str:
     pyproject.toml) or "installed" (a plain pip install anywhere else)."""
     if plugin_data_dir(prefix) is not None:
         return "plugin"
-    root = Path(__file__).resolve().parents[1]
-    return "development" if (root / "pyproject.toml").is_file() else "installed"
+    return "development" if (PROJECT_ROOT / "pyproject.toml").is_file() else "installed"
 
 
 def resolve_config_path(cli_value: str | None, environ=None,
@@ -246,13 +262,32 @@ def plugin_stale_reason(environ=None, prefix: str | None = None) -> str | None:
     return bootstrap.stale_reason(bootstrap.read_marker(prefix), bootstrap.desired_state(root))
 
 
-def load_config(path: str = CONFIG_PATH) -> Config:
+def _own_default_config(path: str) -> bool:
+    """True when `path` is this checkout's own config/config.yaml."""
+    own = PROJECT_ROOT / CONFIG_PATH          # realpath on both sides: a junction or subst drive is the same file
+    return os.path.normcase(os.path.realpath(path)) == os.path.normcase(os.path.realpath(own))
+
+
+def load_config(path: str = CONFIG_PATH, explicit: bool = True) -> Config:
+    """`explicit` is False for the implicit default (no --config, HMD_CONFIG or plugin mode): such a
+    file from a folder other than this checkout is read without UNTRUSTED_KEYS."""
     if not os.path.exists(path):
         return Config()
     try:
         with open(path, encoding="utf-8") as f:
             raw = yaml.safe_load(f) or {}
-        return Config.model_validate(raw)
+        cfg = Config.model_validate(raw)
+        if not explicit and not _own_default_config(path):
+            defaults = Config()
+            for (section, key), allowed in UNTRUSTED_KEYS.items():
+                part = getattr(cfg, section) if section else cfg
+                default = getattr(getattr(defaults, section) if section else defaults, key)
+                if not allowed(getattr(part, key), default):
+                    name = f"{section}.{key}" if section else key
+                    print(f"WARNING: ignoring {name} in {path}: the implicit config in the current "
+                          f"folder may not set it so; pass --config {path} to trust that file", file=sys.stderr)
+                    setattr(part, key, default)
+        return cfg
     except ValidationError as e:
         msg = "\n".join(
             f"{path}: {'.'.join(str(p) for p in err['loc'])}: {err['msg']}"

@@ -8,7 +8,7 @@
     {
       "name": "hmd",
       "source": "./",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "description": "Videos, web pages, PDFs and local files in, a Markdown report with transcript-verified quotes out."
     }
   ]

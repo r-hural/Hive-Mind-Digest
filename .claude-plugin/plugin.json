@@ -1,7 +1,7 @@
 {
   "name": "hmd",
   "displayName": "Hive Mind Digest",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Multi-source research synthesis with verifiable claims: YouTube and other videos, web pages, PDFs and local files in, a Markdown report with transcript-verified quotes out. Public Preview.",
   "author": {
     "name": "r-hural"

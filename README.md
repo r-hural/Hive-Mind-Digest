@@ -79,8 +79,8 @@ Uninstalling the plugin deletes the plugin data folder (the environment, `config
 git clone <this repository>
 cd Hive-Mind-Digest
 python -m venv .venv
-.venv/Scripts/python -m pip install -r requirements.txt -e .     # Windows
-# .venv/bin/python -m pip install -r requirements.txt -e .       # macOS / Linux
+.venv/Scripts/python -m pip install -r requirements-dev.txt -c constraints.txt -e .   # Windows
+# .venv/bin/python -m pip install -r requirements-dev.txt -c constraints.txt -e .     # macOS / Linux
 ```
 
 Then use the CLI from the repository root:
@@ -140,7 +140,10 @@ config error, 130 interrupted.
 ## Inputs
 
 A notebook can mix any of these; `--input` takes a text file with one URL or local file path per
-line (blank lines and `#` comments are skipped; relative paths are relative to the list file):
+line (blank lines and `#` comments are skipped; relative paths are relative to the list file). A
+local path in a list must lie inside the list file's folder (or below it), so a list you downloaded
+cannot send your other files to the model; `hmd` refuses a list that names one outside it, and
+`--file` takes a single file from anywhere:
 
 ```
 # sources.txt
@@ -167,6 +170,10 @@ an existing file of a supported type is skipped with a warning, and the rest of 
 Network share paths (`\\server\share\...`) are refused: copy such a file to a local folder first. A
 source that cannot be read (a page with no main text, a scanned PDF) ends with a one-line error in
 `hmd status <slug>` and is listed under "Sources not analyzed"; the report covers the others.
+
+A local file is linked by its full `file:///` path, so you can open it from the report; that path
+shows your folder names (on Windows usually your user name). Check those links before you share a
+report built from local files.
 Secret-shaped strings (API keys, tokens, private keys) are replaced with `[REDACTED]` before any
 text is cached or sent to the model.
 
@@ -219,7 +226,8 @@ What leaves your machine, and to whom:
 - **Supadata** (opt-in, `supadata` in `transcription.providers`, needs `SUPADATA_API_KEY`): the
   video ids whose captions YouTube would not serve.
 - **The web pages and PDF URLs you list**: fetched directly from their sites.
-- **Hugging Face**: the Whisper model download, only when you use `whisper_local`.
+- **`openaipublic.azureedge.net`** (OpenAI's model host): the Whisper model download, once per model
+  size, only when you use `whisper_local` (`hmd doctor --prewarm-whisper` fetches it ahead).
 - **PyPI**: the pinned packages, when you install.
 - **`hmd doctor`**: Anthropic's public docs pages on `platform.claude.com` (model prices and
   deprecations, to check the configured models) and, with an API key, the free Models API list.
@@ -242,7 +250,8 @@ Providers are tried in the order set in `transcription.providers`:
 - `supadata` (off by default): a server-side transcript API, for networks where YouTube blocks
   caption requests. Needs `SUPADATA_API_KEY` in `.env`.
 - `whisper_local`: local speech-to-text with Whisper for videos without captions and for local
-  audio/video files. Needs `ffmpeg` and `requirements-whisper.txt`; slow on CPU.
+  audio/video files. Needs `ffmpeg` and `pip install -r requirements-whisper.txt -c constraints-whisper.txt`
+  (every transitive pin; for a CUDA build of torch, install it first from PyTorch's own index); slow on CPU.
 
 Web pages, PDFs and text files need no provider setting: they are always read by the built-in
 extractors. Transcripts and extracted text are cached locally and never leave your machine except
@@ -256,7 +265,11 @@ and unknown keys are rejected.
 
 Which config file `hmd` uses, first match wins: `--config <path>`; the `HMD_CONFIG` environment
 variable; when `hmd` runs from the plugin's own environment, `config.yaml` in the plugin data
-folder; otherwise `config/config.yaml` relative to the current directory. `hmd doctor` prints the
+folder; otherwise `config/config.yaml` relative to the current directory. That last, implicit file
+may not turn off a safety check: outside this repository's own checkout, `hmd` ignores, with a
+warning, a `home` other than `data`, a `run.budget_usd` of 0 or above the default, an
+`llm.provider` other than `anthropic_api`, `supadata` in `transcription.providers` and
+`transcription.allow_private_hosts: true` (pass `--config` to trust it). `hmd doctor` prints the
 mode (development checkout or plugin), the config file in use and the home folder.
 
 - `home` -- where state, caches and the reports live (default `data/`, relative to the current
@@ -268,8 +281,9 @@ mode (development checkout or plugin), the config file in use and the home folde
 - `transcription.providers` -- tried in order; `transcription.languages` -- caption languages in
   preference order.
 - `transcription.allow_private_hosts` -- `false` (default): web pages and PDFs are not fetched from
-  loopback, private, link-local or other non-public addresses (also not through a redirect); `true`
-  allows intranet sources.
+  loopback, private, link-local or other non-public addresses (also not through a redirect), and a
+  video's media, manifest and subtitle URLs are checked the same way before yt-dlp downloads them
+  (a redirect inside that download is not); `true` allows intranet sources.
 - `run.budget_usd` -- per-run cap; the run pauses when its spend crosses it; 0 disables it.
 - `output.show_anchors` -- render the verbatim quote under each point.
 - `output.html` -- also write a self-contained `.html` twin of every report (default `true`).

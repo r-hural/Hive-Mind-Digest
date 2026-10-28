@@ -1,0 +1,86 @@
+# Transitive pins for the optional Whisper install: the full resolved set of requirements-whisper.txt for
+# Python 3.11+ on every platform, agreeing with constraints.txt on every shared package. Install with
+#   pip install -r requirements-whisper.txt -c constraints-whisper.txt
+# (for a CUDA build of torch, install it first from PyTorch's own index). Regenerate with
+#   uv pip compile requirements-whisper.txt -c constraints.txt -c <a file holding setuptools==84.0.0> \
+#     --universal --python-version 3.11 --no-header --no-annotate -o constraints-whisper.txt
+# then restore this header. tests/test_repo_hygiene.py checks it.
+annotated-types==0.8.0
+anthropic==0.125.0
+anyio==4.15.1
+babel==2.18.0
+certifi==2026.10.23
+charset-normalizer==3.5.2
+colorama==0.4.6 ; sys_platform == 'win32'
+courlan==1.4.0
+cuda-bindings==13.4.4 ; python_full_version < '3.15' and sys_platform == 'linux'
+cuda-pathfinder==1.8.4 ; python_full_version < '3.15' and sys_platform == 'linux'
+cuda-toolkit==13.2.2 ; sys_platform == 'linux'
+dateparser==1.4.3
+defusedxml==0.7.1
+distro==1.9.0
+docstring-parser==0.18.0
+filelock==4.2.4
+fsspec==2026.9.0
+h11==0.16.0
+htmldate==1.11.0
+httpcore==1.0.9
+httpx==0.28.1
+idna==3.20
+jinja2==3.1.6
+jiter==0.18.0
+justext==3.0.2
+llvmlite==0.50.0
+lxml==6.1.3
+lxml-html-clean==0.4.6
+markupsafe==3.0.4
+more-itertools==11.2.1
+mpmath==1.3.0
+networkx==3.6.1 ; python_full_version < '3.12'
+networkx==3.7 ; python_full_version >= '3.12'
+numba==0.68.1
+numpy==2.4.6 ; python_full_version < '3.12'
+numpy==2.5.4 ; python_full_version >= '3.12'
+nvidia-cublas==13.4.1.3 ; sys_platform == 'linux'
+nvidia-cuda-cccl==13.3.4.3.1 ; sys_platform == 'linux'
+nvidia-cuda-cupti==13.2.86 ; (platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux')
+nvidia-cuda-nvrtc==13.2.86 ; sys_platform == 'linux'
+nvidia-cuda-runtime==13.2.86 ; (platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux')
+nvidia-cudnn-cu13==9.26.0.51 ; sys_platform == 'linux'
+nvidia-cufft==12.2.0.57 ; (platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux')
+nvidia-cufile==1.17.1.22 ; (platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux')
+nvidia-cusolver==12.2.0.11 ; (platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux')
+nvidia-cusparse==12.7.10.12 ; (platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux')
+nvidia-cusparselt-cu13==0.8.1 ; sys_platform == 'linux'
+nvidia-nccl-cu13==2.30.7 ; sys_platform == 'linux'
+nvidia-nvjitlink==13.4.92 ; (platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux')
+nvidia-nvshmem-cu13==3.7.2 ; sys_platform == 'linux'
+nvidia-nvtx==13.2.86 ; (platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux')
+openai-whisper==20250625
+pydantic==2.13.5
+pydantic-core==2.46.5
+pypdf==6.21.0
+python-dateutil==3.0.0
+python-dotenv==1.2.4
+pytz==2026.5
+pyyaml==6.0.3
+rapidfuzz==3.14.6
+regex==2026.9.29
+requests==2.34.2
+setuptools==84.0.0
+six==1.17.0
+sniffio==1.3.1
+sympy==1.14.0
+tiktoken==0.14.0
+tld==0.13.2
+torch==2.15.0
+tqdm==4.70.1
+trafilatura==2.3.1
+triton==3.9.0 ; (python_full_version < '3.16' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or sys_platform == 'linux2'
+typing-extensions==4.16.0
+typing-inspection==0.4.4
+tzdata==2026.5
+tzlocal==5.4.5
+urllib3==2.8.0
+youtube-transcript-api==1.2.4
+yt-dlp==2026.8.19

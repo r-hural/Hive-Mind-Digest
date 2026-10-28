@@ -22,6 +22,7 @@ WORKFLOW_PATH = REPO_ROOT / ".github" / "workflows" / "tests.yml"
 PYPROJECT_PATH = REPO_ROOT / "pyproject.toml"
 REQUIREMENTS_PATH = REPO_ROOT / "requirements.txt"
 REQUIREMENTS_WHISPER_PATH = REPO_ROOT / "requirements-whisper.txt"
+REQUIREMENTS_DEV_PATH = REPO_ROOT / "requirements-dev.txt"
 GITIGNORE_PATH = REPO_ROOT / ".gitignore"
 
 
@@ -73,7 +74,7 @@ def test_workflow_installs_requirements_then_editable_package():
     doc = _load_workflow()
     steps = doc["jobs"]["pytest"]["steps"]
     runs = [s.get("run", "") for s in steps]
-    req_idx = next(i for i, r in enumerate(runs) if "install -r requirements.txt" in r)
+    req_idx = next(i for i, r in enumerate(runs) if "install -r requirements-dev.txt" in r)
     editable_idx = next(i for i, r in enumerate(runs) if "install -e ." in r)
     assert req_idx < editable_idx
 
@@ -118,20 +119,16 @@ def _assert_pins_match(pyproject_specs: list[str], pins: dict[str, str], label: 
 
 
 def test_pyproject_dependencies_match_requirements_txt():
-    pyproject = _pyproject()
-    dev_names = {_pkg_name(s) for s in pyproject["project"]["optional-dependencies"]["dev"]}
-    pins = {n: v for n, v in _pins(REQUIREMENTS_PATH).items() if n not in dev_names}
-    _assert_pins_match(pyproject["project"]["dependencies"], pins,
+    # requirements.txt is the runtime set a plugin install gets: no test tools (release review, 0.1.1)
+    _assert_pins_match(_pyproject()["project"]["dependencies"], _pins(REQUIREMENTS_PATH),
                        "pyproject.toml [project].dependencies vs requirements.txt")
 
 
-def test_pyproject_dev_extra_matches_requirements_txt_test_deps():
-    pyproject = _pyproject()
-    dev_specs = pyproject["project"]["optional-dependencies"]["dev"]
-    dev_names = {_pkg_name(s) for s in dev_specs}
-    pins = {n: v for n, v in _pins(REQUIREMENTS_PATH).items() if n in dev_names}
-    _assert_pins_match(dev_specs, pins,
-                       "pyproject.toml [project.optional-dependencies].dev vs requirements.txt")
+def test_pyproject_dev_extra_matches_requirements_dev_txt():
+    lines = [l.strip() for l in REQUIREMENTS_DEV_PATH.read_text(encoding="utf-8").splitlines()]
+    assert "-r requirements.txt" in lines
+    _assert_pins_match(_pyproject()["project"]["optional-dependencies"]["dev"], _pins(REQUIREMENTS_DEV_PATH),
+                       "pyproject.toml [project.optional-dependencies].dev vs requirements-dev.txt")
 
 
 def test_pyproject_whisper_extra_matches_requirements_whisper_txt():
@@ -193,14 +190,14 @@ def test_constraints_cover_requirements():
     for line in _constraint_lines():
         name, rest = line.split("==", 1)
         pins.setdefault(_pkg_name(name), set()).add(rest.split(";", 1)[0].strip())
-    for spec in _parse_requirements(REQUIREMENTS_PATH):
+    for spec in _parse_requirements(REQUIREMENTS_PATH) + _parse_requirements(REQUIREMENTS_DEV_PATH):
         name, version = spec.split("==", 1)
         assert pins.get(_pkg_name(name)) == {version.strip()}, (name, pins.get(_pkg_name(name)))
 
 
 def test_workflow_and_bootstrap_install_with_the_constraints():
     runs = [s.get("run", "") for s in _load_workflow()["jobs"]["pytest"]["steps"]]
-    assert any("-r requirements.txt" in r and "-c constraints.txt" in r for r in runs), runs
+    assert any("-r requirements-dev.txt" in r and "-c constraints.txt" in r for r in runs), runs
     bootstrap_src = (REPO_ROOT / "pipeline" / "bootstrap.py").read_text(encoding="utf-8")
     assert '"-c", os.path.join(root, "constraints.txt")' in bootstrap_src
 
@@ -221,7 +218,7 @@ def test_readme_privacy_list_names_every_host_hmd_contacts():
     # README "Cost and privacy" claims nothing else is sent anywhere; keep it complete.
     readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     section = readme.split("## Cost and privacy", 1)[1].split("\n## ", 1)[0]
-    for needle in ("Anthropic API", "claude -p", "YouTube", "Supadata", "Hugging Face", "PyPI",
+    for needle in ("Anthropic API", "claude -p", "YouTube", "Supadata", "openaipublic.azureedge.net", "PyPI",
                    "hmd doctor", "platform.claude.com", "Models API"):
         assert needle in section, needle
 
@@ -234,3 +231,99 @@ def test_claude_md_layout_lists_every_stage_module():
     listed = set(re.search(r"pipeline/stages/\{([^}]*)\}", line).group(1).split(","))
     modules = {p.stem for p in (REPO_ROOT / "pipeline" / "stages").glob("*.py") if p.stem != "__init__"}
     assert modules <= listed, sorted(modules - listed)
+
+
+# --- hashed plugin install (release security review, 0.1.1): requirements.lock -----------------
+
+LOCK_PATH = REPO_ROOT / "requirements.lock"
+
+
+def _lock_entries() -> dict[str, tuple[str, int]]:
+    """name -> (pinned version, number of hashes) of requirements.lock."""
+    entries: dict[str, tuple[str, int]] = {}
+    name = None
+    for raw in LOCK_PATH.read_text(encoding="utf-8").splitlines():
+        line = raw.split("#", 1)[0].strip().rstrip("\\").strip()
+        if not line:
+            continue
+        if line.startswith("--hash=sha256:"):
+            version, n = entries[name]
+            entries[name] = (version, n + 1)
+            continue
+        spec = line.split(";", 1)[0].strip()
+        pkg, sep, version = spec.partition("==")
+        assert sep, f"requirements.lock: {line!r} is not an exact pin"
+        name = _pkg_name(pkg)
+        entries[name] = (version.strip(), 0)
+    return entries
+
+
+def test_lock_hashes_every_pin_and_matches_the_constraints():
+    entries = _lock_entries()
+    assert all(n > 0 for _, n in entries.values()), {k: v for k, v in entries.items() if v[1] == 0}
+    constraint_pins = {}
+    for line in _constraint_lines():
+        pkg, rest = line.split("==", 1)
+        constraint_pins[_pkg_name(pkg)] = rest.split(";", 1)[0].strip()
+    differ = {k: (v, constraint_pins.get(k)) for k, (v, _) in entries.items()
+              if k != "setuptools" and constraint_pins.get(k) != v}
+    assert not differ, differ
+    for name, version in _pins(REQUIREMENTS_PATH).items():
+        assert entries.get(name, ("", 0))[0] == version, name
+    for name in _pins(REQUIREMENTS_DEV_PATH):
+        assert name not in entries, f"test tool {name} in the runtime lock"
+
+
+def test_lock_setuptools_is_the_build_system_pin():
+    requires = _pyproject()["build-system"]["requires"]
+    assert requires == [f"setuptools=={_lock_entries()['setuptools'][0]}"], requires
+
+
+def test_bootstrap_installs_the_lock_with_hashes_and_the_release_ships_it():
+    src = (REPO_ROOT / "pipeline" / "bootstrap.py").read_text(encoding="utf-8")
+    assert '"--require-hashes", "--no-deps", "-r", lock' in src and '"--no-build-isolation"' in src
+    allowlist = REPO_ROOT / "release" / "allowlist.txt"
+    if not allowlist.is_file():
+        pytest.skip("release/ is private; the public export has no allowlist")
+    assert "requirements.lock" in allowlist.read_text(encoding="utf-8").splitlines()
+
+
+# --- Whisper's transitive pins (release security review, 0.1.1): constraints-whisper.txt ---------
+
+def test_whisper_constraints_pin_everything_and_agree_with_constraints():
+    path = REPO_ROOT / "constraints-whisper.txt"
+    lines = [raw.split("#", 1)[0].strip() for raw in path.read_text(encoding="utf-8").splitlines()
+             if raw.split("#", 1)[0].strip()]
+    assert lines and all(_CONSTRAINT_LINE.match(line) for line in lines), lines
+    pins: dict[str, set[str]] = {}
+    for line in lines:
+        pkg, rest = line.split("==", 1)
+        pins.setdefault(_pkg_name(pkg), set()).add(rest.split(";", 1)[0].strip())
+    base: dict[str, set[str]] = {}
+    for line in _constraint_lines():
+        pkg, rest = line.split("==", 1)
+        base.setdefault(_pkg_name(pkg), set()).add(rest.split(";", 1)[0].strip())
+    for name, versions in base.items():
+        if name in pins:
+            assert pins[name] == versions, (name, pins[name], versions)
+    for name, version in _pins(REQUIREMENTS_WHISPER_PATH).items():
+        assert pins.get(name) == {version}, name
+    for name, version in _pins(REQUIREMENTS_PATH).items():
+        assert pins.get(name) == {version}, name
+
+
+def test_workflow_pins_actions_by_sha_and_reads_only():
+    # Same rule as the exported overlay workflow (release security review, 0.1.1).
+    doc = _load_workflow()
+    assert doc.get("permissions") == {"contents": "read"}, doc.get("permissions")
+    uses = [s["uses"] for job in doc["jobs"].values() for s in job["steps"] if "uses" in s]
+    assert uses and all(re.fullmatch(r"[\w.-]+/[\w.-]+@[0-9a-f]{40}", u) for u in uses), uses
+    checkout = next(s for job in doc["jobs"].values() for s in job["steps"]
+                    if s.get("uses", "").startswith("actions/checkout@"))
+    assert checkout.get("with", {}).get("persist-credentials") is False
+
+
+def test_workflow_pins_pip():
+    runs = [s.get("run", "") for s in _load_workflow()["jobs"]["pytest"]["steps"]]
+    assert not any("--upgrade pip" in r for r in runs), runs
+    assert any(re.search(r"pip install pip==\d+(\.\d+)+\b", r) for r in runs), runs

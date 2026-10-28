@@ -1,0 +1,4 @@
+# Development and CI: the runtime pins plus the test tools (pyproject.toml's `dev` extra).
+-r requirements.txt
+pytest==9.1.1
+pytest-mock==3.16.0

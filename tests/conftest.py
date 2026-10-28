@@ -22,7 +22,7 @@ def _no_model_monitor_network(monkeypatch):
     may reach the network, so both fail fast unless a test injects its own fetcher."""
     def _offline(*args, **kwargs):
         raise OSError("network disabled in tests")
-    monkeypatch.setattr("pipeline.models_monitor.fetch_text", _offline)
+    monkeypatch.setattr("pipeline.models_monitor._open", _offline)       # fetch_text's network edge
     monkeypatch.setattr("pipeline.models_monitor.list_account_models", _offline)
 
 

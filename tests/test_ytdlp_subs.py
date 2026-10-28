@@ -45,6 +45,9 @@ def make_fake_ydl(manual=None, auto=None, calls=None, download_error=None, paylo
         def __enter__(self):
             return self
 
+        def add_post_processor(self, pp, when):   # media_guard.install
+            pass
+
         def __exit__(self, *a):
             return False
 
@@ -144,6 +147,9 @@ def test_invalid_json_file_is_a_transcription_error():
             self.params = opts
 
         def __enter__(self): return self
+        def add_post_processor(self, pp, when):   # media_guard.install
+            pass
+
         def __exit__(self, *a): return False
 
         def extract_info(self, url, download=False, process=True):
@@ -173,6 +179,9 @@ def test_no_file_written_is_a_transcription_error_naming_the_chosen_key():
             self.params = opts
 
         def __enter__(self): return self
+        def add_post_processor(self, pp, when):   # media_guard.install
+            pass
+
         def __exit__(self, *a): return False
 
         def extract_info(self, url, download=False, process=True):
@@ -195,6 +204,9 @@ def test_temp_directory_is_cleaned_up_after_success():
             captured_dir["path"] = os.path.dirname(opts["outtmpl"])
 
         def __enter__(self): return self
+        def add_post_processor(self, pp, when):   # media_guard.install
+            pass
+
         def __exit__(self, *a): return False
 
         def extract_info(self, url, download=False, process=True):

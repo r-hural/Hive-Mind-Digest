@@ -109,7 +109,22 @@ def file_identity(path: str) -> str:
     return "sha256:" + h.hexdigest()
 
 
-def classify_input(line: str, *, base_dir: str | None = None) -> SourceRef:
+class OutsideListError(ValueError):
+    """A local path in an --input list that resolves outside the list's folder. The whole list is
+    refused, not the line skipped: a downloaded list must not pull in any local file."""
+
+
+def _inside(path: str, folder: str) -> bool:
+    real, base = os.path.normcase(os.path.realpath(path)), os.path.normcase(os.path.realpath(folder))
+    try:
+        return os.path.commonpath([real, base]) == base
+    except ValueError:                  # another drive
+        return False
+
+
+def _classify_url(line: str) -> tuple[str, SourceRef | None]:
+    """(unquoted text, the ref of a URL line or None for a local path); ValueError for a URL hmd
+    does not take."""
     from pipeline.stages.fetch import YOUTUBE_HOSTS, parse_youtube_url   # local import: fetch imports this module
     from pipeline.transcription.base import watch_url
     text = line.strip()
@@ -117,7 +132,7 @@ def classify_input(line: str, *, base_dir: str | None = None) -> SourceRef:
         text = text[1:-1].strip()
     try:
         vid = parse_youtube_url(text)
-        return SourceRef(vid, "youtube", watch_url(vid))
+        return text, SourceRef(vid, "youtube", watch_url(vid))
     except ValueError:
         pass
     scheme = urlsplit(text).scheme.lower()
@@ -135,12 +150,45 @@ def classify_input(line: str, *, base_dir: str | None = None) -> SourceRef:
             kind = "pdf"
         else:
             kind = "web"
-        return SourceRef(hashed_key(kind, url), kind, url)
+        return text, SourceRef(hashed_key(kind, url), kind, url)
     if scheme and len(scheme) > 1:                                # "C:" is a drive letter, not a scheme
         raise ValueError(f"unsupported URL scheme {scheme!r} in {text!r}")
+    return text, None
+
+
+def _local_path(text: str, base_dir: str | None, confine: bool) -> str:
+    """The path a local-file line names, checked before any file access."""
     path = text if os.path.isabs(text) else os.path.join(base_dir or os.getcwd(), text)
     if is_network_path(path):     # checked before any file access: opening it already connects
         raise ValueError(f"network share paths are not supported (copy the file locally): {text!r}")
+    if confine and base_dir and not _inside(path, base_dir):
+        raise OutsideListError(f"local file outside the input list's folder {base_dir}: {text!r}; "
+                               f"move it next to the list, or add it with --file")
+    return path
+
+
+def check_list_paths(lines: list[str], base_dir: str) -> None:
+    """Raise OutsideListError for the first local path in `lines` (an --input list) outside
+    `base_dir`. Reads no file, so a caller can refuse the list before anything else runs; any other
+    bad line is left to classify_input (which skips it with a warning)."""
+    for line in lines:
+        try:
+            text, ref = _classify_url(line)
+            if ref is None:
+                _local_path(text, base_dir, confine=True)
+        except OutsideListError:
+            raise
+        except ValueError:
+            pass
+
+
+def classify_input(line: str, *, base_dir: str | None = None, confine: bool = False) -> SourceRef:
+    """`base_dir` resolves a relative local path; with `confine` (the lines of an --input list) a
+    local path must also resolve inside `base_dir`, symlinks followed, else OutsideListError."""
+    text, ref = _classify_url(line)
+    if ref is not None:
+        return ref
+    path = _local_path(text, base_dir, confine)
     if not os.path.isfile(path):
         raise ValueError(f"not a URL and not an existing file: {text!r}")
     ext = os.path.splitext(path)[1].lower()

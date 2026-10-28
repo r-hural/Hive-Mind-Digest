@@ -178,3 +178,70 @@ def test_output_html_defaults_on():
     from pipeline.config import Config
     assert Config().output.html is True
     assert Config(output={"html": False}).output.html is False
+
+
+# The implicit config/config.yaml under the CWD is trusted like the CWD's .env (pipeline/envfile.py):
+# a downloaded folder must not lift a security check. Only this checkout's own file is trusted in full.
+def _private_hosts_config(tmp_path):
+    path = tmp_path / "config.yaml"
+    path.write_text("transcription:\n  allow_private_hosts: true\nrun:\n  budget_usd: 2\n", encoding="utf-8")
+    return str(path)
+
+
+def test_implicit_foreign_config_cannot_allow_private_hosts(tmp_path, capsys):
+    cfg = load_config(_private_hosts_config(tmp_path), explicit=False)
+    assert cfg.transcription.allow_private_hosts is False
+    assert cfg.run.budget_usd == 2                          # every other key is still honoured
+    assert "allow_private_hosts" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("yaml_text, read, default", [
+    ("run:\n  budget_usd: 0\n", lambda c: c.run.budget_usd, 5.0),             # cap off
+    ("run:\n  budget_usd: 50\n", lambda c: c.run.budget_usd, 5.0),            # cap raised
+    ("home: C:/elsewhere\n", lambda c: c.home, "data"),                         # writes moved
+    ("llm:\n  provider: claude_cli\n", lambda c: c.llm.provider, "anthropic_api"),
+    ("transcription:\n  providers: [supadata]\n",                              # third-party egress
+     lambda c: c.transcription.providers, ["youtube_captions", "ytdlp_subs", "whisper_local"]),
+])
+def test_implicit_foreign_config_cannot_lift_a_safeguard(tmp_path, capsys, yaml_text, read, default):
+    # release security review of 0.1.1: the spending cap, the data folder, the provider and the
+    # transcribers are as sensitive as allow_private_hosts
+    path = tmp_path / "config.yaml"
+    path.write_text(yaml_text, encoding="utf-8")
+    assert read(load_config(str(path), explicit=False)) == default
+    assert "WARNING: ignoring" in capsys.readouterr().err
+    assert read(load_config(str(path))) != default                 # an explicit --config is trusted
+
+
+def test_implicit_foreign_config_may_tighten(tmp_path, capsys):
+    path = tmp_path / "config.yaml"
+    path.write_text("run:\n  budget_usd: 1.5\ntranscription:\n  providers: [ytdlp_subs]\n", encoding="utf-8")
+    cfg = load_config(str(path), explicit=False)
+    assert cfg.run.budget_usd == 1.5
+    assert cfg.transcription.providers == ["ytdlp_subs"]
+    assert capsys.readouterr().err == ""
+
+
+def test_explicit_config_may_allow_private_hosts(tmp_path, capsys):
+    cfg = load_config(_private_hosts_config(tmp_path))
+    assert cfg.transcription.allow_private_hosts is True
+    assert capsys.readouterr().err == ""
+
+
+def test_implicit_config_of_this_checkout_is_trusted_in_full(tmp_path, monkeypatch):
+    import pipeline.config as config_mod
+    (tmp_path / "config").mkdir()
+    own = tmp_path / "config" / "config.yaml"
+    own.write_text("transcription:\n  allow_private_hosts: true\n", encoding="utf-8")
+    monkeypatch.setattr(config_mod, "PROJECT_ROOT", tmp_path)
+    assert load_config(str(own), explicit=False).transcription.allow_private_hosts is True
+
+
+def test_own_config_reached_through_another_path_spelling_is_still_trusted(tmp_path, monkeypatch):
+    # realpath on both sides (review of 0.1.1): a junction, subst drive or 8.3 name is the same file
+    import pipeline.config as config_mod
+    (tmp_path / "config").mkdir()
+    own = tmp_path / "config" / "config.yaml"
+    own.write_text("transcription:\n  allow_private_hosts: true\n", encoding="utf-8")
+    monkeypatch.setattr(config_mod, "PROJECT_ROOT", tmp_path / "config" / "..")
+    assert load_config(str(own), explicit=False).transcription.allow_private_hosts is True

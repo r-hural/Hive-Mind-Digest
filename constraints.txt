@@ -1,9 +1,9 @@
-# Transitive pins (IDEA-284, Public Preview 0.1): the full resolved set of requirements.txt for Python
-# 3.11+ on every platform. CI and /hmd:init (pipeline/bootstrap.py) install with
-#   pip install -r requirements.txt -c constraints.txt
-# Regenerate after changing requirements.txt:
-#   uv pip compile requirements.txt --universal --python-version 3.11 --no-header --no-annotate -o constraints.txt
-# then restore this header. tests/test_repo_hygiene.py checks every line is pinned and agrees with requirements.txt.
+# Transitive pins (IDEA-284, Public Preview 0.1): the full resolved set of requirements-dev.txt for Python
+# 3.11+ on every platform. CI installs with `pip install -r requirements-dev.txt -c constraints.txt`,
+# /hmd:init (pipeline/bootstrap.py) with `-r requirements.txt -c constraints.txt`.
+# Regenerate after changing requirements.txt or requirements-dev.txt:
+#   uv pip compile requirements-dev.txt --universal --python-version 3.11 --no-header --no-annotate -o constraints.txt
+# then restore this header. tests/test_repo_hygiene.py checks every line is pinned and agrees with requirements-dev.txt.
 annotated-types==0.8.0
 anthropic==0.125.0
 anyio==4.15.1

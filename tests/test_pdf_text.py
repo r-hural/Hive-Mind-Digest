@@ -59,6 +59,7 @@ def test_encrypted_pdf_is_a_clear_error(tmp_path, monkeypatch):
             return 0
 
     monkeypatch.setattr(pdf_text.pypdf, "PdfReader", _R)
+    monkeypatch.setattr(pdf_text, "_extract_bounded", pdf_text._extract_in_process)   # the patch is in this process
     with pytest.raises(TranscriptionError, match="encrypted PDF"):
         PdfTextExtractor().transcribe(_ref(p), ["en"])
 
@@ -207,3 +208,40 @@ def test_text_metadata_failure_falls_back_to_the_file_stem(monkeypatch, tmp_path
     sid = db.add_source(path, nb, "text-0123456789abcdef", f.resolve().as_uri(), kind="text")
     assert fetch.fetch_source_metadata(path, sid, log=lambda m: None) == "done"
     assert db.get_source(path, sid)["title"] == "my notes"
+
+
+# pypdf runs in a child process with a wall-clock limit (release security review, 2026-10-28): a
+# crafted PDF that makes the parser loop is killed, not left spinning in the run's worker thread.
+def test_extraction_runs_in_a_child_without_api_keys(tmp_path, monkeypatch):
+    seen = {}
+    real_run = pdf_text.subprocess.run
+
+    def spy(argv, **kw):
+        seen["argv"], seen["env"] = argv, kw["env"]
+        return real_run(argv, **kw)
+
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test")
+    monkeypatch.setattr(pdf_text.subprocess, "run", spy)
+    p = write_text_pdf(tmp_path / "a.pdf", ["Words about habits. " * 20], info={"Title": "Habit notes"})
+    t = PdfTextExtractor().transcribe(_ref(p), ["en"])
+    assert t.extra["title"] == "Habit notes" and t.segments[0].page == 1
+    assert seen["argv"][1] == "-P" and "pipeline.transcription.pdf_text" in seen["argv"]
+    assert "ANTHROPIC_API_KEY" not in seen["env"]
+
+
+def test_extraction_over_the_time_limit_is_a_transcription_error(tmp_path, monkeypatch):
+    import sys
+    p = write_text_pdf(tmp_path / "a.pdf", ["Words about habits. " * 20])
+    monkeypatch.setattr(pdf_text, "PDF_TIMEOUT_SECONDS", 1)
+    monkeypatch.setattr(pdf_text, "_child_argv", lambda: [sys.executable, "-c", "import time; time.sleep(30)"])
+    with pytest.raises(TranscriptionError, match="took longer than 1 s"):
+        PdfTextExtractor().transcribe(_ref(p), ["en"])
+    assert pdf_text.pdf_title(_ref(p)) is None             # the metadata step gives up the same way
+
+
+def test_a_crashing_child_is_a_transcription_error(tmp_path, monkeypatch):
+    import sys
+    p = write_text_pdf(tmp_path / "a.pdf", ["Words about habits. " * 20])
+    monkeypatch.setattr(pdf_text, "_child_argv", lambda: [sys.executable, "-c", "raise SystemExit(3)"])
+    with pytest.raises(TranscriptionError, match="pdf_text: could not read PDF"):
+        PdfTextExtractor().transcribe(_ref(p), ["en"])

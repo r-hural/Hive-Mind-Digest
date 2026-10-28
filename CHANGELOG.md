@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.1.1
+
+Security and install hardening.
+
+- Skills treat report text as untrusted data: they show it but never follow instructions in it.
+- An `--input` list may name local files only inside its own folder; a path outside it stops the
+  run before anything is fetched (use `--file` for a single file elsewhere).
+- A `config/config.yaml` picked up from the current folder (not passed with `--config`) can no
+  longer switch off a safeguard: it cannot turn off or raise the spending cap, move the data
+  folder, change the LLM provider, add the Supadata transcriber or allow private network
+  addresses. It may still tighten them (a lower budget, fewer transcribers).
+- Video downloads check the resolved media, manifest and subtitle addresses against private
+  networks before downloading.
+- PDFs are parsed in a separate process with a two-minute limit, so a malformed file cannot hang
+  a run.
+- Text from sources is stripped of terminal control characters before it is printed.
+- The plugin installs from a hashed lock file (`requirements.lock`, `pip --require-hashes`), with
+  the build tool pinned; Whisper has its own full pin set (`constraints-whisper.txt`).
+- Test tools moved to `requirements-dev.txt`.
+- The price and model check reads only Anthropic's documentation pages, over https, with a size
+  cap.
+- Docs: the Whisper model download host is `openaipublic.azureedge.net`; reports link local files
+  by their full `file:///` path (shared reports show local folder names).
+
 ## 0.1.0
 
 Public Preview.

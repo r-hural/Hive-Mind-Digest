@@ -15,7 +15,7 @@ from urllib.parse import parse_qs, unquote, urlparse
 import yt_dlp
 
 from pipeline import db
-from pipeline.sources import SourceRef, classify_input
+from pipeline.sources import SourceRef, check_list_paths, classify_input
 from pipeline.transcription.base import watch_url
 
 YOUTUBE_HOSTS = {"youtube.com", "www.youtube.com", "m.youtube.com", "music.youtube.com", "youtu.be",
@@ -116,6 +116,12 @@ def parse_playlist_url(url: str) -> str:
     return pid
 
 
+def check_input_file(input_file: str) -> None:
+    """Refuse an --input list that names a local file outside its folder (OutsideListError, a
+    ValueError); Runner.validate calls it so the refusal comes before the run starts."""
+    check_list_paths(read_url_file(input_file), os.path.dirname(os.path.abspath(input_file)))
+
+
 def read_url_file(path: str) -> list[str]:
     """One URL per line; '#' comments and blank lines skipped. utf-8-sig tolerates a Notepad BOM;
     str.strip() also drops the trailing \\r from Windows line endings."""
@@ -184,7 +190,8 @@ def fetch_stage(db_path: str, notebook_id: int, *, input_file: str | None = None
                 log: Callable[[str], None] = print) -> list[int]:
     """Resolve exactly one of input_file, url, playlist_url or file_path to source rows and register them.
 
-    Lines of input_file (relative paths resolve against the list file's directory) and the single
+    Lines of input_file (relative paths resolve against the list file's directory, and a local path
+    outside that directory refuses the whole list: OutsideListError) and the single
     url/file_path go through classify_input; a line that cannot be classified is skipped with a
     warning. A playlist stays YouTube-only. Giving more than one input is rejected rather than
     silently picking a precedence order. Returns the source ids in first-seen order, deduped. Any
@@ -206,12 +213,13 @@ def fetch_stage(db_path: str, notebook_id: int, *, input_file: str | None = None
         if input_file:
             lines = read_url_file(input_file)
             base_dir = os.path.dirname(os.path.abspath(input_file))
+            check_list_paths(lines, base_dir)     # refuse before registering anything
         else:
             lines = [url or file_path]
             base_dir = None
         for line in lines:
             try:
-                refs.append(classify_input(line, base_dir=base_dir))
+                refs.append(classify_input(line, base_dir=base_dir, confine=bool(input_file)))
             except ValueError as e:
                 log(f"  WARNING: Skipping {line!r}: {e}")
     ids = register_refs(db_path, notebook_id, refs, metadata)

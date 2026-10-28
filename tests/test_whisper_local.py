@@ -27,6 +27,9 @@ def make_fake_ydl(write_files=None):
         def __enter__(self):
             return self
 
+        def add_post_processor(self, pp, when):   # media_guard.install
+            pass
+
         def __exit__(self, *a):
             return False
 

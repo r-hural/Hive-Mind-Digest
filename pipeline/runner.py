@@ -43,7 +43,8 @@ from pipeline.llm.client import BudgetExceeded
 from pipeline.llm.factory import make_client, make_provider
 from pipeline.pricing import price_for
 from pipeline.slug import slugify, unique_slug
-from pipeline.stages.fetch import fetch_source_metadata, fetch_stage
+from pipeline.termtext import terminal_safe
+from pipeline.stages.fetch import check_input_file, fetch_source_metadata, fetch_stage
 from pipeline.stages.merge import run_merge
 from pipeline.stages.output import render_reports, report_path_for
 from pipeline.transcription.base import Transcriber
@@ -162,9 +163,10 @@ def safe_log(log: Callable[[str], None]) -> Callable[[str], None]:
     console raised UnicodeEncodeError on a point quoted by merge:check and killed a billed run at
     the end). A line that raises is retried once ASCII-escaped ("\\xd7" for the multiplication
     sign); if that raises too, the line is dropped. KeyboardInterrupt and other BaseExceptions are
-    not caught. Every stage, worker and merge call receives the runner's log, so wrapping here
-    covers every call site."""
+    not caught. Control characters are replaced first (pipeline/termtext.py). Every stage, worker
+    and merge call receives the runner's log, so wrapping here covers every call site."""
     def _log(msg: str) -> None:
+        msg = terminal_safe(msg)       # error text and titles come from remote pages and APIs
         try:
             log(msg)
         except Exception:
@@ -406,6 +408,8 @@ class Runner:
             raise ValueError(
                 "fetch requested with no input and the notebook has no sources; "
                 "give --input, --url, --playlist or --file")
+        if "fetch" in stages and input_file:
+            check_input_file(input_file)     # a local path outside the list's folder refuses the list
         return notebook
 
     def run(self, notebook_id: int, stages: list[str], *, input_file: str | None = None, url: str | None = None,

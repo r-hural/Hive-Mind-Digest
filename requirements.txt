@@ -1,4 +1,5 @@
-# Exact pins (IDEA-284): what CI and a plugin install get. pyproject.toml keeps the compatible
+# Exact pins (IDEA-284): the runtime dependencies a plugin install gets (the test tools are in
+# requirements-dev.txt). pyproject.toml keeps the compatible
 # ranges; tests/test_repo_hygiene.py checks each pin lies inside its pyproject range, and
 # scripts/release.py refuses to export an unpinned line.
 anthropic==0.125.0  # pyproject keeps <1.0: 1.x migrates to httpx2; separate migration
@@ -10,5 +11,3 @@ pyyaml==6.0.3
 python-dotenv==1.2.4
 trafilatura==2.3.1
 pypdf==6.21.0
-pytest==9.1.1
-pytest-mock==3.16.0

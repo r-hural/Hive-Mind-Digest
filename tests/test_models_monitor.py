@@ -292,3 +292,53 @@ def test_stage_usage_counts_batched_calls(cfg):
                        provider="anthropic_batch", model="m", input_tokens=800, output_tokens=80,
                        cache_read_tokens=0, cache_write_tokens=0, cost_usd=0.0, duration_ms=1)
     assert stage_usage(cfg.db_path, "analyze") == (800.0, 80.0, 1.0)
+
+
+# fetch_text reads public docs pages: a size cap and redirects only within the same https host
+# (release security review, 2026-10-28).
+class _Resp:
+    def __init__(self, body):
+        self.body = body
+
+    def read(self, n=-1):
+        return self.body if n < 0 else self.body[:n]
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *a):
+        return False
+
+
+def test_fetch_text_caps_the_page_size(monkeypatch):
+    import pytest
+    from pipeline import models_monitor as mm
+    monkeypatch.setattr(mm, "MAX_PAGE_BYTES", 10)
+    monkeypatch.setattr(mm, "_open", lambda req, timeout: _Resp(b"x" * 11))
+    with pytest.raises(OSError, match="larger than 10 bytes"):
+        mm.fetch_text("https://platform.claude.com/docs/x.md")
+    monkeypatch.setattr(mm, "_open", lambda req, timeout: _Resp(b"ok"))
+    assert mm.fetch_text("https://platform.claude.com/docs/x.md") == "ok"
+
+
+def test_fetch_text_refuses_a_non_https_url():
+    import pytest
+    from pipeline import models_monitor as mm
+    with pytest.raises(OSError, match="https"):
+        mm.fetch_text("http://platform.claude.com/docs/x.md")
+
+
+def test_redirects_stay_on_the_same_https_host():
+    import urllib.error
+    import urllib.request
+    import pytest
+    from pipeline import models_monitor as mm
+    handler = mm._SameHostRedirect()
+    req = urllib.request.Request("https://platform.claude.com/docs/a.md")
+    ok = handler.redirect_request(req, None, 302, "Found", {}, "https://platform.claude.com/docs/b.md")
+    assert ok.full_url == "https://platform.claude.com/docs/b.md"
+    moved = handler.redirect_request(req, None, 301, "Moved", {}, "https://docs.claude.com/docs/a.md")
+    assert moved.full_url == "https://docs.claude.com/docs/a.md"       # the docs moving between their hosts
+    for target in ("https://evil.example/a.md", "http://platform.claude.com/docs/b.md"):
+        with pytest.raises(urllib.error.HTTPError, match="redirect"):
+            handler.redirect_request(req, None, 302, "Found", {}, target)

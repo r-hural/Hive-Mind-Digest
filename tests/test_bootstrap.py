@@ -430,3 +430,31 @@ def test_marker_write_does_not_share_a_temp_name_with_another_process(tmp_path):
     bootstrap.touch_last_used(str(venv), now=now)
     assert bootstrap.read_marker(str(venv))["last_used"] == now.isoformat()
     assert not [p for p in venv.iterdir() if p.name.endswith(".tmp") and p.is_file()]
+
+
+# The plugin install fetches nothing unhashed (release security review, 2026-10-28): the runtime
+# pins and setuptools come from the hashed requirements.lock, and the package then builds against
+# that setuptools with no build-isolation download.
+def _lock(root, body="pydantic==2.13.5 \\n    --hash=sha256:" + "0" * 64 + "\n"):
+    (root / "requirements.lock").write_text(body, encoding="utf-8")
+    return root / "requirements.lock"
+
+
+def test_a_hashed_lock_installs_with_require_hashes(tmp_path):
+    root, data = _plugin_root(tmp_path), tmp_path / "data"
+    (root / "constraints.txt").write_text("pydantic==2.13.5\n", encoding="utf-8")
+    lock = _lock(root)
+    runner = FakeRunner()
+    assert _ensure(root, data, runner)[0] == 0
+    assert runner.calls[1][4:] == ["--disable-pip-version-check", "--quiet", "--require-hashes", "--no-deps",
+                                   "-r", str(lock)]
+    package = runner.calls[2]
+    assert "--no-deps" in package and "--no-build-isolation" in package and "-r" not in package
+
+
+def test_the_lock_is_part_of_the_env_digest(tmp_path):
+    root = _plugin_root(tmp_path)
+    _lock(root)
+    before = bootstrap.env_digest(str(root))
+    _lock(root, "pydantic==2.13.6 \\n    --hash=sha256:" + "1" * 64 + "\n")
+    assert bootstrap.env_digest(str(root)) != before

@@ -46,7 +46,7 @@ Show the user every `[FAIL]` and `[warn]` line with a one-line fix each:
 - `ffmpeg` / `whisper` -> only needed for videos without captions: install ffmpeg on PATH and
   Whisper into the plugin's environment, or remove `whisper_local` from `transcription.providers`.
   Whisper: `"${CLAUDE_PLUGIN_DATA}/venv/Scripts/python.exe" -m pip install -r
-  "${CLAUDE_PLUGIN_ROOT}/requirements-whisper.txt"` on Windows (`venv/bin/python` elsewhere); a
+  "${CLAUDE_PLUGIN_ROOT}/requirements-whisper.txt" -c "${CLAUDE_PLUGIN_ROOT}/constraints-whisper.txt"` on Windows (`venv/bin/python` elsewhere); a
   plugin update rebuilds the environment, so repeat it after `/hmd:init` reinstalls. These are
   `[FAIL]` only when `whisper_local` is the sole configured provider (no captions fallback);
   otherwise they are `[warn]`.

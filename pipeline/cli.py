@@ -37,7 +37,8 @@ from pipeline.exit_codes import EXIT_ERROR, EXIT_INTERRUPTED, EXIT_OK, EXIT_PAUS
 from pipeline.llm.base import LLMError
 from pipeline.llm.factory import LLM_STAGES, OfflineProvider, make_provider
 from pipeline.quality import quality_report
-from pipeline.runner import Runner, STAGES, timing_report, usage_report
+from pipeline.runner import Runner, STAGES, safe_log, timing_report, usage_report
+from pipeline.termtext import terminal_safe
 from pipeline.stages.fetch import fetch_stage
 from pipeline.stages.output import html_twin_path
 
@@ -228,7 +229,7 @@ def _finish(result, slug: str) -> int:
     print(f"COST={result.cost_usd:.4f}")
     if result.status == "paused":
         print("STATUS=paused")
-        print(result.message)
+        print(terminal_safe(result.message))
         print(f"Resume with: hmd resume {slug}")
         return EXIT_PAUSED
     if result.status == "error":
@@ -236,9 +237,9 @@ def _finish(result, slug: str) -> int:
         if getattr(result, "fatal", False):
             # One line: the run stopped on an error every call would hit (auth, billing, credit
             # balance, subscription limit); the runner already made it single-line.
-            print(f"ERROR: {result.message} -- the run stopped; fix the account/key and run hmd resume {slug}")
+            print(f"ERROR: {terminal_safe(result.message)} -- the run stopped; fix the account/key and run hmd resume {slug}")
         else:
-            print(result.message)
+            print(terminal_safe(result.message))
         return EXIT_ERROR
     print("STATUS=done")
     return EXIT_OK
@@ -355,7 +356,7 @@ def cmd_notebook_list(cfg: Config, args) -> int:
     for nb in notebooks:
         run = db.latest_run(cfg.db_path, nb["id"])
         state = run["status"] if run else "new"
-        print(f"{nb['slug']:<24}[{state}]  {nb['topic']}")
+        print(f"{nb['slug']:<24}[{state}]  {terminal_safe(nb['topic'])}")
     return EXIT_OK
 
 
@@ -367,7 +368,7 @@ def cmd_notebook_add(cfg: Config, args) -> int:
     notebook = _notebook(cfg, args.notebook)
     before = {s["id"] for s in db.get_notebook_sources(cfg.db_path, notebook["id"])}
     ids = fetch_stage(cfg.db_path, notebook["id"], input_file=args.input_file, url=args.url,
-                      playlist_url=args.playlist, file_path=args.file_path, log=print)
+                      playlist_url=args.playlist, file_path=args.file_path, log=safe_log(print))
     added = [i for i in ids if i not in before]
     print(f"NOTEBOOK={notebook['slug']}")
     print(f"ADDED={len(added)}")
@@ -416,7 +417,7 @@ def cmd_status(cfg: Config, args) -> int:
     # The topic is untrusted, user-supplied text: keep it off any line that starts with a
     # KEY=value token a skill might parse (see cmd_run's newline-collapsing comment).
     print(f"Notebook {notebook['id']} '{notebook['slug']}'")
-    print(f"  topic: {notebook['topic']}")
+    print(f"  topic: {terminal_safe(notebook['topic'])}")
     sources = db.get_notebook_sources(cfg.db_path, notebook["id"])
     if sources:
         print(f"{'id':<5}{'kind':<8}{'source':<23}{'fetch':<10}{'transcribe':<12}{'analyze':<10}title")
@@ -432,7 +433,7 @@ def cmd_status(cfg: Config, args) -> int:
                  f"{analyze_status:<10}{title}")
             if s["error_message"]:
                 # one line: a page's or yt-dlp's message can hold newlines (see the title's repr above)
-                print(f"  error: {' '.join(str(s['error_message']).split())}")
+                print(f"  error: {terminal_safe(' '.join(str(s['error_message']).split()))}")
     else:
         print("No sources yet.")
     run = db.latest_run(cfg.db_path, notebook["id"])
@@ -441,7 +442,7 @@ def cmd_status(cfg: Config, args) -> int:
         print(f"Last run {run['id']}: {run['status']} stages={run['stages']} "
              f"provider={run['provider']} budget=${budget:.2f}")
         if run["error"]:
-            print(f"  error: {run['error']}")
+            print(f"  error: {terminal_safe(' '.join(str(run['error']).split()))}")
         print(usage_report(cfg.db_path, run["id"]))
         timing = timing_report(cfg.db_path, notebook["id"], run["id"])
         if timing:
@@ -523,7 +524,7 @@ def main(argv: list[str] | None = None) -> int:
                     "plugin": "; run /hmd:init (or hmd init) first"}[config_source]
             raise ConfigError(f"config file not found: {config_path}{hint}")
         else:
-            cfg = load_config(config_path)
+            cfg = load_config(config_path, explicit=config_source != "default")
             if cfg.transcription.allow_private_hosts or "pipeline.transcription.web_text" in sys.modules:
                 from pipeline.transcription import web_text     # metadata fetches run in this process
                 web_text.set_allow_private_hosts(cfg.transcription.allow_private_hosts)
@@ -566,7 +567,7 @@ def main(argv: list[str] | None = None) -> int:
     except (ConfigError, db.LegacyDatabaseError, LLMError, OSError, ValueError, sqlite3.Error) as e:
         if os.environ.get("HMD_DEBUG"):
             raise
-        print(f"hmd: {e}", file=sys.stderr)
+        print(f"hmd: {terminal_safe(e)}", file=sys.stderr)
         return EXIT_USAGE
     except KeyboardInterrupt:
         print("hmd: interrupted", file=sys.stderr)

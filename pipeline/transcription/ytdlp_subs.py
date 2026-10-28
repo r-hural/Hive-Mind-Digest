@@ -21,6 +21,7 @@ import tempfile
 import yt_dlp
 
 from pipeline.sources import SourceRef
+from pipeline.transcription import media_guard
 from pipeline.transcription.base import Segment, Transcript, TranscriptionError
 
 
@@ -80,6 +81,7 @@ class YtDlpSubsProvider:
                     "noplaylist": True,       # a playlist/channel URL must never fan out
                 }
                 with yt_dlp.YoutubeDL(opts) as ydl:
+                    media_guard.install(ydl)       # the subtitle URL must not be a private address
                     # Metadata only, no download yet: raw subtitle/caption tracks available.
                     info = ydl.extract_info(url, download=False, process=False) or {}
                     manual = info.get("subtitles") or {}

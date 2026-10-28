@@ -50,7 +50,7 @@ def gpu_report() -> tuple[bool, str]:
     try:
         import whisper  # noqa: F401
     except ImportError:
-        return False, "openai-whisper not installed (pip install -r requirements-whisper.txt); Whisper fallback unavailable"
+        return False, "openai-whisper not installed (pip install -r requirements-whisper.txt -c constraints-whisper.txt); Whisper fallback unavailable"
     try:
         import torch
         if torch.cuda.is_available():
@@ -87,7 +87,7 @@ def prewarm_whisper(cfg: Config, log=print) -> bool:
     try:
         import whisper
     except ImportError:
-        log("openai-whisper not installed; run: pip install -r requirements-whisper.txt")
+        log("openai-whisper not installed; run: pip install -r requirements-whisper.txt -c constraints-whisper.txt")
         return False
     size = cfg.transcription.whisper.model_size
     cache_dir = _whisper_cache_dir()
@@ -354,7 +354,8 @@ def _check_egress(cfg: Config) -> list[Check]:
         elif p == "supadata":
             egress_lines.append("transcribe: supadata -> api.supadata.ai (video ids sent to a third party)")
         elif p == "whisper_local":
-            egress_lines.append("transcribe: whisper_local -> youtube.com (audio download); whisper runs locally")
+            egress_lines.append("transcribe: whisper_local -> youtube.com (audio download), openaipublic.azureedge.net "
+                                "(model download, first use); whisper runs locally")
     if cfg.llm.provider == "anthropic_api":
         egress_lines.append("analyze/merge: anthropic_api -> api.anthropic.com")
     else:

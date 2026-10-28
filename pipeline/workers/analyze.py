@@ -12,7 +12,7 @@ from typing import Callable
 
 from pipeline import db
 from pipeline.anchors import QUOTE_PAD_SEGMENTS, resolve_segment_claims
-from pipeline.config import load_config
+from pipeline.config import CONFIG_PATH, load_config
 from pipeline.llm.base import LLMError, LLMFatalError, LLMInterrupted
 from pipeline.llm.client import BudgetExceeded, LLMClient
 from pipeline.llm.factory import make_client, make_provider
@@ -101,10 +101,10 @@ def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source-id", type=int, required=True)
     parser.add_argument("--topic", required=True)
-    parser.add_argument("--config", default="config/config.yaml")
+    parser.add_argument("--config", default=None)
     parser.add_argument("--force", action="store_true")
     args = parser.parse_args(argv)
-    cfg = load_config(args.config)
+    cfg = load_config(args.config or CONFIG_PATH, explicit=args.config is not None)
     source = db.get_source(cfg.db_path, args.source_id)
     if not source:
         print(f"source {args.source_id} not found", file=sys.stderr)

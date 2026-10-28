@@ -11,13 +11,14 @@ and it
 1. checks the running Python against `requires-python` in the plugin's pyproject.toml and stops
    with a clear message (exit 4) when it is too old;
 2. keys the venv by a digest of what it is built from (`env_digest`: plugin version,
-   pyproject.toml, requirements.txt, constraints.txt): `<data>/venv/<digest>`;
+   pyproject.toml, requirements.txt, constraints.txt, requirements.lock): `<data>/venv/<digest>`;
 3. returns at once when that venv holds a matching install marker and the launcher exists
    (`BOOTSTRAP=ok`);
 4. otherwise takes the lock `<data>/venv/.lock` (a second /hmd:init waits for it; a lock older
    than 30 minutes is stale), builds the new venv BESIDE any older one (a session still running
-   hmd from the old venv keeps working), installs the pinned requirements.txt with
-   constraints.txt, then the package itself (non-editable, from a temporary copy so nothing is
+   hmd from the old venv keeps working), installs the hashed requirements.lock (`--require-hashes`;
+   without one, requirements.txt with constraints.txt), then the package itself (non-editable,
+   `--no-build-isolation` against the locked setuptools, from a temporary copy so nothing is
    written into the plugin folder), writes the marker `<venv>/hmd-plugin.json`, and only then
    points the launcher `<data>/hmd` (a POSIX sh script that runs the venv's hmd) at the new venv;
    prints `BOOTSTRAP=installed`;
@@ -61,7 +62,7 @@ LOCK_WAIT_SECONDS = 10 * 60         # how long a second /hmd:init waits for the 
 LOCK_POLL_SECONDS = 2
 IDLE_SECONDS = 24 * 60 * 60         # other digests' venvs unused this long are removed
 _DIGEST_RE = re.compile(r"^[0-9a-f]{12}$")
-_DIGEST_FILES = ("pyproject.toml", "requirements.txt", "constraints.txt")
+_DIGEST_FILES = ("pyproject.toml", "requirements.txt", "constraints.txt", "requirements.lock")
 
 EXIT_OK = 0
 EXIT_ERROR = 2      # venv creation or pip failed
@@ -371,15 +372,23 @@ def _install(root, venv, python, runner, log, version_info, now):
         return False
     vpy = venv_python(venv)
     pip = [vpy, "-m", "pip", "install", "--disable-pip-version-check", "--quiet"]
-    reqs = ["-r", os.path.join(root, "requirements.txt")]
-    if os.path.isfile(os.path.join(root, "constraints.txt")):
-        reqs += ["-c", os.path.join(root, "constraints.txt")]   # transitive pins
+    lock = os.path.join(root, "requirements.lock")
+    if os.path.isfile(lock):
+        # Every runtime pin and setuptools with its hashes; the package below then builds against
+        # that setuptools, so pip downloads nothing unhashed (release security review, 0.1.1).
+        reqs = ["--require-hashes", "--no-deps", "-r", lock]
+        package = ["--no-deps", "--no-build-isolation"]
+    else:                               # an older plugin root without the lock
+        reqs = ["-r", os.path.join(root, "requirements.txt")]
+        if os.path.isfile(os.path.join(root, "constraints.txt")):
+            reqs += ["-c", os.path.join(root, "constraints.txt")]   # transitive pins
+        package = []
     if not _run(pip + reqs, runner, log):
         return False
     tmp = tempfile.mkdtemp(prefix="hmd-install-")
     try:
         _copy_package(root, tmp)
-        if not _run(pip + [tmp], runner, log):
+        if not _run(pip + package + [tmp], runner, log):
             return False
     finally:
         shutil.rmtree(tmp, ignore_errors=True)

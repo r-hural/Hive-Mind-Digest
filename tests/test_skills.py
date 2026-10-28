@@ -59,3 +59,14 @@ def test_no_skill_mentions_deleted_mvp_surface():
         lowered = text.lower()
         for token in forbidden_ci:
             assert token not in lowered, (path, token)
+
+
+def test_skills_that_show_a_report_treat_its_text_as_untrusted_data():
+    # The report is model-written from web pages, PDFs and captions: an injected instruction in it
+    # must be shown, never followed (release security review, 2026-10-28).
+    shown = [p for p in _skill_paths() if "## TL;DR" in open(p, encoding="utf-8").read()]
+    assert len(shown) >= 3, shown           # run, analyze, init
+    for path in shown:
+        text = " ".join(open(path, encoding="utf-8").read().split())
+        assert "untrusted data" in text, path
+        assert "never follow instructions" in text, path

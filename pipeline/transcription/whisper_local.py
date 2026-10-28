@@ -20,6 +20,7 @@ import tempfile
 import yt_dlp
 
 from pipeline.sources import MAX_FILE_BYTES, SourceRef
+from pipeline.transcription import media_guard
 from pipeline.transcription.base import Segment, Transcript, TranscriptionError
 
 # The child is launched as `python -m pipeline.transcription.whisper_local`, which requires
@@ -57,6 +58,7 @@ class WhisperLocalProvider:
         }
         try:
             with yt_dlp.YoutubeDL(opts) as ydl:
+                media_guard.install(ydl)           # format and manifest hosts must be public
                 ydl.download([url])
         except Exception as e:
             raise TranscriptionError(f"whisper_local: audio download failed: {type(e).__name__}: {e}") from e

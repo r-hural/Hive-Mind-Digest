@@ -576,3 +576,10 @@ def test_warns_that_local_media_needs_whisper_local_when_not_configured(tmp_path
 def test_no_local_media_warning_when_whisper_local_configured(tmp_path):
     c = _by_name(run_checks(Config(home=str(tmp_path))))
     assert "local_media" not in c
+
+
+def test_egress_names_the_whisper_model_host():
+    # openai-whisper downloads its models from OpenAI's host, not Hugging Face (release review, 0.1.1)
+    import inspect
+    from pipeline import doctor
+    assert "openaipublic.azureedge.net" in inspect.getsource(doctor)

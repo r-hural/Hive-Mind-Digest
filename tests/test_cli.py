@@ -1213,3 +1213,60 @@ def test_status_skips_an_html_twin_older_than_its_report(env, capsys):
     os.utime(html_path, (st.st_atime, st.st_mtime - 60))     # a same-day --no-html re-render left it behind
     assert _main(["--config", cfg_path, "status", "t"]) == 0
     assert not any(l.startswith("REPORT_HTML=") for l in capsys.readouterr().out.splitlines())
+
+
+def test_implicit_cwd_config_does_not_lift_the_private_host_check(tmp_path, monkeypatch, capsys):
+    from pipeline.transcription import web_text
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "config").mkdir()
+    (tmp_path / "config" / "config.yaml").write_text("transcription:\n  allow_private_hosts: true\n",
+                                                     encoding="utf-8")
+    monkeypatch.setattr(web_text, "_allow_private_hosts", False)
+    code = _main(["status"])
+    assert code == 0
+    assert web_text._allow_private_hosts is False
+    assert "allow_private_hosts" in capsys.readouterr().err
+
+
+def test_run_refuses_an_input_list_naming_a_file_outside_its_folder(env, tmp_path, capsys):
+    cfg_path, _ = env
+    (tmp_path / "secret.txt").write_text("private", encoding="utf-8")
+    (tmp_path / "lists").mkdir()
+    lst = tmp_path / "lists" / "in.txt"
+    lst.write_text("https://youtu.be/aaaaaaaaaaa\n../secret.txt\n", encoding="utf-8")
+    code = _main(["--config", cfg_path, "run", "--topic", "T", "--input", str(lst)])
+    captured = capsys.readouterr()
+    assert code == 4
+    assert "NOTEBOOK=" not in captured.out                 # refused before the run starts
+    assert "outside the input list's folder" in captured.err and "--file" in captured.err
+
+
+def test_usage_error_text_is_printed_without_control_characters(tmp_path, capsys):
+    missing = str(tmp_path / "evil\x1b[2J.yaml")
+    assert _main(["--config", missing, "status"]) == 4
+    err = capsys.readouterr().err
+    assert "\x1b" not in err and "evil?[2J.yaml" in err
+
+
+def test_finish_prints_the_run_message_without_control_characters(capsys):
+    from types import SimpleNamespace
+    from pipeline.cli import _finish
+    result = SimpleNamespace(status="error", message="stage failed: \x1b]8;;http://x\x07click", fatal=False,
+                             report_path=None, report_html_path=None, cost_usd=0.0, run_id=1)
+    _finish(result, "slug")
+    out = capsys.readouterr().out
+    assert "\x1b" not in out and "\x07" not in out
+
+
+def test_status_prints_a_stored_remote_error_without_control_characters(env, capsys):
+    from pipeline import db
+    from pipeline.config import load_config
+    cfg_path, _ = env
+    cfg = load_config(cfg_path)
+    db.init_db(cfg.db_path)
+    nb = db.create_notebook(cfg.db_path, "T", "t")
+    sid = db.add_source(cfg.db_path, nb, "web-0123456789abcdef", "https://example.org/", kind="web")
+    db.update_source_metadata(cfg.db_path, sid, status="error", error="HTTP 500: \x1b[2Jgone")
+    assert _main(["--config", cfg_path, "status", "t"]) == 0
+    out = capsys.readouterr().out
+    assert "\x1b" not in out and "?[2Jgone" in out
